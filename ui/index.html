@@ -1,0 +1,493 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="dashboard" class="dashboard-body">
+    <button
+      id="sidebar-toggle"
+      class="mobile-menu-button"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+      aria-controls="dashboard-sidebar"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark">
+          <span class="brand-icon">B</span>
+          <div>
+            <p class="brand-label">Personal Health Agent</p>
+            <h1 class="brand-name">Boris</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a class="nav-link active" href="/"><span class="nav-link-icon nav-icon-dashboard" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link" href="/chat"><span class="nav-link-icon nav-icon-boris" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link" href="/records"><span class="nav-link-icon nav-icon-records" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link" href="/schedules"><span class="nav-link-icon nav-icon-schedules" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon nav-icon-notes" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary">
+          <a class="nav-link" href="/dev-logs"><span class="nav-link-icon nav-icon-logs" aria-hidden="true">◫</span><span>Logs</span></a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <p class="sidebar-version">Boris v1.0</p>
+      </div>
+    </aside>
+
+    <main class="dashboard-main">
+      <header id="hero-panel" class="hero-panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Daily Dashboard</p>
+          <div class="hero-date-row">
+            <div class="hero-date-stack">
+              <h2 id="today-date" class="hero-date">Loading today...</h2>
+              <div class="hero-date-controls">
+                <button id="dashboard-prev-date" class="hero-date-button" type="button" aria-label="Previous day">&larr;</button>
+                <input id="dashboard-date-input" class="hero-date-input" type="date" />
+                <button id="dashboard-next-date" class="hero-date-button" type="button" aria-label="Next day">&rarr;</button>
+                <button id="dashboard-jump-today" class="hero-date-button hero-date-button-today" type="button">Today</button>
+              </div>
+              <p id="dashboard-date-note" class="hero-date-note">Viewing today.</p>
+            </div>
+          </div>
+          <div class="hero-meta">
+            <div id="weather-widget" class="weather-widget weather-widget-loading" aria-live="polite">
+              <span class="weather-icon">--</span>
+              <span class="weather-condition">Loading weather</span>
+              <span class="weather-stat">H:--Â° L:--Â°</span>
+              <span class="weather-stat">--%</span>
+              <span class="weather-stat">---- hPa</span>
+            </div>
+            <div class="completion-chip">
+              <span class="completion-label">Completion</span>
+              <strong id="completion-text">0 of 13 logged</strong>
+            </div>
+            <div id="save-status" class="status-pill" aria-live="polite">
+              Loading today&apos;s log...
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-actions-stack">
+          <button
+            id="flare-toggle"
+            class="state-toggle state-toggle-flare"
+            type="button"
+            aria-pressed="false"
+          >
+            <span class="state-toggle-label">Flare Day</span>
+            <span class="state-toggle-state">Off</span>
+          </button>
+          <button
+            id="good-day-toggle"
+            class="state-toggle state-toggle-good"
+            type="button"
+            aria-pressed="false"
+          >
+            <span class="state-toggle-label">Good Day</span>
+            <span class="state-toggle-state">Off</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="vitals-grid">
+        <article class="dashboard-card vital-card" data-card="sleep">
+          <div class="card-heading">
+            <div>
+              <p class="card-kicker">Big Three</p>
+              <h3>Sleep</h3>
+            </div>
+          </div>
+          <div class="field-cluster">
+            <label class="field">
+              <span>Hours</span>
+              <input
+                id="sleep-hours"
+                type="number"
+                min="0"
+                max="24"
+                step="0.1"
+                placeholder="7.5"
+              />
+            </label>
+            <div class="range-field">
+              <div class="range-topline">
+                <span>Quality</span>
+                <strong id="sleep-quality-value" class="range-value">--</strong>
+              </div>
+              <input
+                id="sleep-quality"
+                class="range-input"
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value="5"
+              />
+            </div>
+          </div>
+        </article>
+
+        <article class="dashboard-card vital-card" data-card="energy">
+          <div class="card-heading">
+            <div>
+              <p class="card-kicker">Big Three</p>
+              <h3>Energy</h3>
+            </div>
+          </div>
+          <div class="split-range-grid">
+            <div class="range-field">
+              <div class="range-topline">
+                <span>Morning</span>
+                <strong id="energy-morning-value" class="range-value">--</strong>
+              </div>
+              <input
+                id="energy-morning"
+                class="range-input"
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value="5"
+              />
+            </div>
+            <div class="range-field">
+              <div class="range-topline">
+                <span>Evening</span>
+                <strong id="energy-evening-value" class="range-value">--</strong>
+              </div>
+              <input
+                id="energy-evening"
+                class="range-input"
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value="5"
+              />
+            </div>
+          </div>
+        </article>
+
+        <article class="dashboard-card vital-card" data-card="mood">
+          <div class="card-heading">
+            <div>
+              <p class="card-kicker">Big Three</p>
+              <h3>Mood</h3>
+            </div>
+          </div>
+          <div class="field-cluster">
+            <div class="range-field">
+              <div class="range-topline">
+                <span>Mood</span>
+                <strong id="mood-value" class="range-value">--</strong>
+              </div>
+              <input
+                id="mood"
+                class="range-input"
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value="5"
+              />
+            </div>
+            <div class="range-field">
+              <div class="range-topline">
+                <span>Stress</span>
+                <strong id="stress-value" class="range-value">--</strong>
+              </div>
+              <input
+                id="stress"
+                class="range-input"
+                type="range"
+                min="1"
+                max="10"
+                step="1"
+                value="5"
+              />
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="module-grid">
+        <article class="dashboard-card" data-card="supplements">
+          <div class="card-heading">
+            <div>
+              <h3>Intake Tracking</h3>
+              <p class="card-subtitle">
+                Check off what you took. Time fills automatically.
+              </p>
+            </div>
+          </div>
+          <div class="checklist-tabs">
+            <button class="checklist-tab is-active" type="button" data-checklist-tab="supplements">Supplements</button>
+            <button class="checklist-tab" type="button" data-checklist-tab="medications">Medications</button>
+          </div>
+          <div id="supplements-list" class="list-stack"></div>
+          <div id="medications-list" class="list-stack" hidden></div>
+        </article>
+
+        <article class="dashboard-card" data-card="symptoms">
+          <div class="card-heading">
+            <div>
+              <h3>Symptoms</h3>
+              <p class="card-subtitle">
+                Check symptoms that occurred today. New items stay unlogged until you update them.
+              </p>
+            </div>
+            <div id="flare-indicator" class="module-indicator">Calm</div>
+          </div>
+          <div id="symptoms-list" class="list-stack"></div>
+          <form id="add-symptom-form" class="inline-form">
+            <input
+              id="add-symptom-input"
+              type="text"
+              placeholder="Add symptom"
+              aria-label="Add symptom"
+            />
+            <button class="button-primary" type="submit">Add</button>
+          </form>
+        </article>
+
+        <article class="dashboard-card" data-card="meals">
+          <div class="card-heading">
+            <div>
+              <h3>Meals</h3>
+              <p id="meals-summary" class="card-subtitle meals-summary">
+                Today: -- cal | --g protein | --g carbs | --g fat
+              </p>
+            </div>
+          </div>
+          <div id="meals-list" class="entry-stack"></div>
+          <form id="meal-form" class="stack-form">
+            <input
+              id="meal-description"
+              type="text"
+              placeholder="Add meal"
+              aria-label="Meal description"
+            />
+            <button id="meal-submit" class="button-primary" type="submit">
+              Estimate and add
+            </button>
+          </form>
+          <div id="meal-estimate-preview"></div>
+        </article>
+
+        <article class="dashboard-card" data-card="exercise">
+          <div class="card-heading">
+            <div>
+              <h3>Exercise</h3>
+              <p class="card-subtitle">
+                Track duration, time, and how you felt afterward.
+              </p>
+            </div>
+          </div>
+          <div id="exercise-list" class="entry-stack"></div>
+          <form id="exercise-form" class="stack-form">
+            <input
+              id="exercise-description"
+              type="text"
+              placeholder="Add exercise"
+              aria-label="Exercise description"
+            />
+            <div class="compact-fields">
+              <label class="field">
+                <span>Duration (minutes)</span>
+                <input
+                  id="exercise-duration"
+                  type="number"
+                  min="0"
+                  placeholder="45"
+                />
+              </label>
+              <div class="range-field">
+                <div class="range-topline">
+                  <span>Post-exercise feeling</span>
+                  <strong id="exercise-feeling-value" class="range-value">5</strong>
+                </div>
+                <input
+                  id="exercise-feeling"
+                  class="range-input"
+                  type="range"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value="5"
+                />
+              </div>
+            </div>
+            <button class="button-primary" type="submit">Add exercise</button>
+          </form>
+        </article>
+
+        <article class="dashboard-card" data-card="intake">
+          <div class="card-heading">
+            <div>
+              <h3>Intake</h3>
+              <p class="card-subtitle">Quick capture for stimulants, alcohol, and water.</p>
+            </div>
+          </div>
+          <div class="field-cluster">
+            <label class="field">
+              <span>Stimulant</span>
+              <input id="stimulant" type="text" placeholder="2 coffees" />
+            </label>
+            <label class="field">
+              <span>Alcohol</span>
+              <input id="alcohol" type="text" placeholder="none" />
+            </label>
+            <div class="field">
+              <span>Water</span>
+              <div class="segmented-control">
+                <button class="segment-button" data-water="Low" type="button">Low</button>
+                <button class="segment-button" data-water="Okay" type="button">Okay</button>
+                <button class="segment-button" data-water="Good" type="button">Good</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="dashboard-card" data-card="changes">
+          <div class="card-heading">
+            <div>
+              <h3>What Changed Today</h3>
+            </div>
+          </div>
+          <label class="field">
+            <span>What changed</span>
+            <input
+              id="what-changed"
+              type="text"
+              placeholder="Anything different from the usual routine?"
+            />
+          </label>
+          <p class="helper-text">
+            This will be reviewed when updating your patient notes.
+          </p>
+        </article>
+
+        <section class="subtle-card vitals-reading-card" data-card="vitals-readings">
+          <div class="card-heading">
+            <div>
+              <h3>Vitals</h3>
+              <p class="card-subtitle">Quick, timestamped readings for blood pressure, temperature, and weight.</p>
+            </div>
+          </div>
+          <form id="vitals-reading-form" class="entry-stack">
+            <div class="compact-fields vitals-reading-fields">
+              <label class="field">
+                <span>Type</span>
+                <select id="vitals-reading-type">
+                  <option value="blood_pressure">Blood Pressure</option>
+                  <option value="temperature">Temperature</option>
+                  <option value="weight">Weight</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Time</span>
+                <input id="vitals-reading-time" type="time" />
+              </label>
+            </div>
+            <div id="vitals-reading-dynamic-fields" class="compact-fields vitals-reading-fields"></div>
+            <label class="field vitals-note-field">
+              <span>Note</span>
+              <input
+                id="vitals-reading-note"
+                type="text"
+                maxlength="120"
+                placeholder="Optional"
+              />
+            </label>
+            <div class="inline-form-actions">
+              <button id="vitals-reading-submit" class="button-primary" type="submit">Add reading</button>
+            </div>
+          </form>
+          <div id="vitals-readings-list" class="dashboard-entry-list"></div>
+        </section>
+
+        <article class="dashboard-card journal-card" data-card="journal">
+          <div class="card-heading">
+            <div>
+              <h3>Journal</h3>
+              <p class="card-subtitle">Add timestamped notes throughout the day.</p>
+            </div>
+            <div id="journal-count" class="count-pill">0 entries</div>
+          </div>
+          <form id="journal-entry-form" class="entry-stack">
+            <div class="compact-fields journal-entry-fields">
+              <label class="field">
+                <span>Time</span>
+                <input id="journal-entry-time" type="time" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Journal entry</span>
+              <textarea
+                id="journal-entry-input"
+                rows="4"
+                placeholder="Felt sick after lunch"
+              ></textarea>
+            </label>
+            <div class="inline-form-actions">
+              <button id="journal-entry-submit" class="button-primary" type="submit">Add entry</button>
+            </div>
+          </form>
+          <div id="journal-entries-list" class="dashboard-entry-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <div id="toast-region" class="toast-region" aria-live="polite"></div>
+
+    <div id="summary-modal-backdrop" class="summary-modal-backdrop" hidden>
+      <div class="summary-modal">
+        <div class="summary-modal-header">
+          <h3>Daily Summary</h3>
+          <button id="summary-modal-close" class="summary-modal-close" type="button">&times;</button>
+        </div>
+        <div id="summary-modal-body" class="summary-modal-body">
+          <p>Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <script src="/vendor/marked/marked.umd.js"></script>
+    <script id="boris-page-tour" type="application/json">
+      [
+        {"selectors":[".hero-date-stack",".hero-meta"],"title":"One day at a time","body":"Use the date controls to review any day. Every change saves automatically; the completion and status indicators show your progress."},
+        {"selectors":[".vitals-grid",".module-grid"],"title":"Build the daily picture","body":"Log core vitals, treatments, symptoms, meals, and activity. Together they give Boris the context needed to spot useful patterns."},
+        {"selectors":["#flare-toggle","#good-day-toggle"],"title":"Two different signals","body":"Flare Day means your underlying symptoms acted up. Good Day is your overall judgment of the day. Either, both, or neither can apply."},
+        {"selector":".sidebar-nav","title":"Explore the rest of Boris","body":"Unread dots mark pages you have not explored yet. Visit Boris, Records, Schedules, Automations, Trends, and Doctor's Notes when you are ready.","showSidebar":true}
+      ]
+    </script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>
+

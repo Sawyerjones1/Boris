@@ -1,0 +1,41 @@
+# Secrets - NEVER commit these
+.env
+.env.*
+!.env.example
+
+# Local identity - NEVER commit the real one
+config.json
+!config.json.example
+
+# Dependencies - reinstalled via npm install
+node_modules/
+
+# Runtime data - all stored in Neon Postgres
+agents/health/users/
+agents/health/summaries/
+
+# Runtime / temp output
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.tmp-*.out
+.tmp-*.err
+tmp/
+temp/
+
+# Local tooling / editor state
+.claude/
+.vscode/
+.idea/
+.sfdx/
+
+# OS junk
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Optional local uploads / exports
+uploads/
+exports/

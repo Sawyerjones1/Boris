@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="chat" class="chat-body">
+    <button
+      id="sidebar-toggle"
+      class="mobile-menu-button"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+      aria-controls="dashboard-sidebar"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark">
+          <span class="brand-icon">B</span>
+          <div>
+            <p class="brand-label">Personal Health Agent</p>
+            <h1 class="brand-name">Boris</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="/"><span class="nav-link-icon nav-icon-dashboard" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link active" href="/chat"><span class="nav-link-icon nav-icon-boris" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link" href="/records"><span class="nav-link-icon nav-icon-records" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link" href="/schedules"><span class="nav-link-icon nav-icon-schedules" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon nav-icon-notes" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary">
+          <a class="nav-link" href="/dev-logs"><span class="nav-link-icon nav-icon-logs" aria-hidden="true">◫</span><span>Logs</span></a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <p class="sidebar-version">Boris v1.0</p>
+      </div>
+    </aside>
+
+    <main class="chat-main">
+      <header class="chat-topbar">
+        <div class="chat-topbar-main">
+          <div class="chat-avatar">B</div>
+          <div>
+            <p class="eyebrow">Conversation</p>
+            <h2 class="chat-title">Talk to Boris</h2>
+          </div>
+        </div>
+
+        <div class="chat-topbar-actions">
+          <div id="chat-mode-indicator" class="mode-indicator mode-free">
+            <span class="mode-dot"></span>
+            <span id="chat-mode-text">Free Chat</span>
+          </div>
+          <button id="start-recap-button" class="button-secondary" type="button">
+            Daily Recap
+          </button>
+          <button
+            id="exit-recap-button"
+            class="button-secondary"
+            type="button"
+            hidden
+          >
+            Exit Recap
+          </button>
+        </div>
+      </header>
+
+      <section id="chat-thread" class="chat-thread" aria-live="polite"></section>
+
+      <form id="chat-form" class="chat-composer">
+        <div class="chat-composer-topline">
+          <span id="composer-mode-label">Free Chat</span>
+        </div>
+        <div class="chat-composer-row">
+          <input
+            id="chat-input"
+            class="chat-input"
+            type="text"
+            placeholder="Tell Boris something or ask a question"
+            autocomplete="off"
+          />
+          <button id="chat-send-button" class="button-primary chat-send" type="submit">
+            Send
+          </button>
+        </div>
+        <p id="chat-error" class="chat-error" aria-live="polite"></p>
+      </form>
+    </main>
+
+    <script id="boris-page-tour" type="application/json">
+      [
+        {"selector":"#chat-form","title":"Talk naturally","body":"Report health data or ask a question in plain language. Boris decides whether to log it or answer from your health context."},
+        {"selector":"#chat-mode-indicator","title":"Know how Boris handled it","body":"Responses are labeled as Log, Doctor, Meta, Identity Update, or Daily Recap. The label appears automatically under each Boris response."},
+        {"selectors":["#start-recap-button","#exit-recap-button"],"title":"Fill gaps with Daily Recap","body":"Daily Recap asks structured questions about anything missing from today's log. Exit whenever you want to return to free chat."}
+      ]
+    </script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>
+

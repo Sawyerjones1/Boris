@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Onboarding</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="onboarding">
+    <main class="shell shell-narrow">
+      <section class="hero">
+        <p class="eyebrow">Boris</p>
+        <h1>Set up your health profile</h1>
+        <p class="lede">
+          Start with the context that matters to you. Boris will use it to build
+          a thoughtful health picture you can refine as you log more.
+        </p>
+      </section>
+
+      <form id="onboarding-form" class="card form-card">
+        <section class="onboarding-section" aria-labelledby="onboarding-about-heading">
+          <div class="onboarding-section-heading">
+            <p class="eyebrow">1. Your baseline</p>
+            <h2 id="onboarding-about-heading">Who Boris is supporting</h2>
+            <p>Your name and date of birth establish the profile. Add the optional details only when they feel useful to your health context.</p>
+          </div>
+          <div class="grid-form">
+            <label class="field"><span>Preferred name</span><input name="name" type="text" required /></label>
+            <label class="field"><span>Date of birth</span><input name="birthday" type="date" required /></label>
+            <label class="field"><span>Sex assigned at birth <em>Optional</em></span><input name="sex" type="text" placeholder="Female, male, intersex, or self-described" /></label>
+            <label class="field"><span>Height <em>Optional</em></span><input name="height" type="text" placeholder="5 ft 10 in" /></label>
+            <label class="field"><span>Weight <em>Optional</em></span><input name="weight" type="text" placeholder="170 lb" /></label>
+            <label class="field"><span>Home region <em>Optional</em></span><input name="location" type="text" placeholder="Portland, OR" /></label>
+            <label class="field"><span>Weekday commitments <em>Optional</em></span><input name="work" type="text" placeholder="Remote work, class schedule, caregiving, or shifts" /></label>
+            <label class="field field-wide"><span>Typical day <em>Optional</em></span><textarea name="routine" rows="3" placeholder="A few details are enough: when you usually sleep and eat, work or study, move your body, and anything that affects your capacity."></textarea></label>
+          </div>
+        </section>
+
+        <section class="onboarding-section" aria-labelledby="onboarding-health-heading">
+          <div class="onboarding-section-heading">
+            <p class="eyebrow">2. Your health story</p>
+            <h2 id="onboarding-health-heading">What do you want to understand or improve?</h2>
+            <p>Describe what is happening now, what you have noticed, and what a useful outcome would look like. This is context for tracking, not a diagnosis.</p>
+          </div>
+          <label class="field"><span>What brings you to tracking now?</span><textarea name="medicalContext" rows="3" required placeholder="Example: I want to understand recurring digestive symptoms and protect my afternoon energy."></textarea></label>
+          <div class="grid-form">
+            <label class="field"><span>Symptoms you want to track <em>Optional</em></span><textarea name="symptoms" rows="4" placeholder="One per line, for example: bloating, headache, afternoon fatigue"></textarea></label>
+            <label class="field"><span>Diagnoses or current conditions <em>Optional</em></span><textarea name="conditions" rows="4" placeholder="One per line"></textarea></label>
+            <label class="field"><span>Allergies or adverse reactions <em>Optional</em></span><textarea name="allergies" rows="4" placeholder="One per line, including food or medication reactions"></textarea></label>
+            <label class="field"><span>Food pattern or considerations <em>Optional</em></span><textarea name="foodPattern" rows="4" placeholder="Example: mostly home-cooked meals; vegetarian; trying to observe gluten exposure"></textarea></label>
+            <label class="field"><span>What seems to help, worsen, or coincide? <em>Optional</em></span><textarea name="observations" rows="4" placeholder="Example: symptoms seem more likely after restaurant lunches; a short night makes fatigue worse"></textarea></label>
+            <label class="field"><span>Recent changes <em>Optional</em></span><textarea name="recentChanges" rows="4" placeholder="Changes in the last few months: illness, medication, stress, travel, work, diet, sleep, or activity"></textarea></label>
+          </div>
+          <label class="field"><span>What would a helpful outcome look like?</span><textarea name="goals" rows="3" required placeholder="One goal per line, for example: identify useful patterns; prepare for a clinician visit; improve daytime energy"></textarea></label>
+          <label class="field"><span>How should Boris communicate? <em>Optional</em></span><select name="communicationPreference"><option value="">Use the default concise, clinical style</option><option value="Use short, direct answers with bullets.">Short and direct</option><option value="Explain the reasoning behind recommendations in plain language.">Explain the reasoning</option><option value="Use a supportive tone and check in before giving detailed suggestions.">Supportive and collaborative</option></select></label>
+        </section>
+
+        <section class="onboarding-section" aria-labelledby="onboarding-care-heading">
+          <div class="onboarding-section-heading">
+            <p class="eyebrow">3. Current care</p>
+            <h2 id="onboarding-care-heading">Care and current treatments</h2>
+            <p>These create editable Records entries. Add only what is active or relevant; medical documents can be uploaded after setup.</p>
+          </div>
+          <div class="onboarding-care-group">
+            <div class="onboarding-care-header"><div><h3>Medications</h3><p>Include only active medications.</p></div><button class="mini-button" type="button" data-onboarding-add="medications">Add medication</button></div>
+            <div id="onboarding-medications" class="onboarding-care-list"></div>
+          </div>
+          <div class="onboarding-care-group">
+            <div class="onboarding-care-header"><div><h3>Supplements</h3><p>Include active supplements you want to track daily.</p></div><button class="mini-button" type="button" data-onboarding-add="supplements">Add supplement</button></div>
+            <div id="onboarding-supplements" class="onboarding-care-list"></div>
+          </div>
+          <label class="field"><span>Care team <em>Optional</em></span><textarea name="providers" rows="3" placeholder="One per line, for example: Primary care: Dr. Lee"></textarea></label>
+        </section>
+
+        <div class="form-actions">
+          <button class="button button-primary" type="submit">Create profile</button>
+          <p id="form-status" class="status-text" aria-live="polite"></p>
+        </div>
+      </form>
+    </main>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

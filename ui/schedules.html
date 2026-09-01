@@ -1,0 +1,301 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Schedules</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="schedules" class="chat-body">
+    <button
+      id="sidebar-toggle"
+      class="mobile-menu-button"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+      aria-controls="dashboard-sidebar"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark">
+          <span class="brand-icon">B</span>
+          <div>
+            <p class="brand-label">Personal Health Agent</p>
+            <h1 class="brand-name">Boris</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="/"><span class="nav-link-icon nav-icon-dashboard" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link" href="/chat"><span class="nav-link-icon nav-icon-boris" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link" href="/records"><span class="nav-link-icon nav-icon-records" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link active" href="/schedules"><span class="nav-link-icon nav-icon-schedules" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon nav-icon-notes" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary">
+          <a class="nav-link" href="/dev-logs"><span class="nav-link-icon nav-icon-logs" aria-hidden="true">◫</span><span>Logs</span></a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <p class="sidebar-version">Boris v1.0</p>
+      </div>
+    </aside>
+
+    <main class="schedules-main">
+      <header class="schedules-header">
+        <div>
+          <p class="eyebrow">Planning</p>
+          <h2 class="chat-title">Schedules</h2>
+          <p class="card-subtitle">
+            Keep your weekly structure and calendar in one place so Boris can reason about real life, not just symptoms.
+          </p>
+        </div>
+
+        <div class="schedules-topbar-actions">
+          <div id="google-status-badge" class="schedules-status-badge is-idle">Google not connected</div>
+          <button id="schedules-google-connect" class="button-secondary" type="button">Connect Google</button>
+          <button id="schedules-google-disconnect" class="button-secondary" type="button" hidden>Disconnect</button>
+          <button id="schedules-refresh" class="button-primary" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <section class="schedules-surface">
+        <div class="schedules-toolbar">
+          <section class="records-subtabs schedules-subtabs" role="tablist" aria-label="Schedules tabs">
+            <button class="records-subtab is-active" type="button" data-schedules-tab="recurring">Recurring</button>
+            <button class="records-subtab" type="button" data-schedules-tab="calendar">Calendar</button>
+          </section>
+          <div id="recurring-toolbar-actions" class="schedules-toolbar-actions">
+            <button id="planning-preferences-open" class="button-secondary" type="button">Planning Preferences</button>
+            <button id="recurring-open-form" class="button-primary" type="button">Add Block</button>
+          </div>
+        </div>
+
+        <section id="schedules-panel-recurring" class="schedules-panel">
+          <section class="schedules-card recurring-grid-card">
+            <div class="schedules-card-header">
+              <div>
+                <h3>Weekly Rhythm</h3>
+                <p class="card-subtitle">Your recurring commitments at a glance.</p>
+              </div>
+            </div>
+            <div id="recurring-week-grid" class="recurring-week-grid"></div>
+          </section>
+
+          <section class="schedules-card recurring-list-card">
+            <div class="schedules-card-header">
+              <div>
+                <h3>Recurring Blocks</h3>
+                <p class="card-subtitle">Manage the routines Boris uses when reasoning about your week.</p>
+              </div>
+              <span id="recurring-list-count" class="schedules-count-badge">0 blocks</span>
+            </div>
+            <div id="recurring-list" class="recurring-list"></div>
+          </section>
+        </section>
+
+        <section id="schedules-panel-calendar" class="schedules-panel" hidden>
+          <div class="schedules-calendar-shell">
+            <section class="schedules-card calendar-week-card">
+              <div class="schedules-card-header">
+                <div>
+                  <h3>Calendar</h3>
+                  <p class="card-subtitle">Recurring blocks and synced Google events, together in weekly and monthly views.</p>
+                </div>
+                <div class="calendar-view-toggle" role="tablist" aria-label="Calendar view">
+                  <button class="mini-button is-active" type="button" data-calendar-view="week">Week</button>
+                  <button class="mini-button" type="button" data-calendar-view="month">Month</button>
+                </div>
+              </div>
+              <div id="calendar-legend" class="calendar-legend"></div>
+              <div id="calendar-week-grid" class="calendar-week-grid"></div>
+              <div id="calendar-month-grid" class="calendar-month-grid" hidden></div>
+            </section>
+
+            <section class="schedules-card calendar-agenda-card">
+              <div class="schedules-card-header">
+                <div>
+                  <h3>Agenda</h3>
+                  <p class="card-subtitle">The next two weeks of recurring blocks and synced events Boris can use for planning.</p>
+                </div>
+              </div>
+              <div id="calendar-agenda" class="calendar-agenda"></div>
+            </section>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+    <div id="recurring-editor-modal" class="schedules-modal" hidden>
+      <button class="schedules-modal-backdrop" type="button" data-close-schedules-modal="recurring" aria-label="Close recurring block dialog"></button>
+      <section id="recurring-editor-card" class="schedules-modal-card" role="dialog" aria-modal="true" aria-labelledby="recurring-form-title">
+        <div class="schedules-modal-header">
+          <div>
+            <h3 id="recurring-form-title">Add Recurring Block</h3>
+            <p class="card-subtitle">Add a commitment once and Boris will place it across your week.</p>
+          </div>
+          <button id="recurring-editor-close" class="icon-button" type="button" aria-label="Close recurring block editor">×</button>
+        </div>
+
+        <form id="recurring-form" class="stack-form recurring-form">
+          <input id="recurring-id" type="hidden" />
+          <div class="recurring-primary-fields">
+            <label class="field">
+              <span>Block name</span>
+              <input id="recurring-title" type="text" placeholder="Work, class, therapy" autocomplete="off" required />
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <select id="recurring-category">
+                <option value="work">Work</option>
+                <option value="class">Class</option>
+                <option value="health">Health</option>
+                <option value="exercise">Exercise</option>
+                <option value="personal">Personal</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="recurring-field-group">
+            <div class="recurring-field-header">
+              <span class="field-label">Repeats on</span>
+              <div class="recurring-day-presets" aria-label="Day presets">
+                <button class="text-button" type="button" data-recurring-day-preset="weekdays">Weekdays</button>
+                <button class="text-button" type="button" data-recurring-day-preset="daily">Every day</button>
+                <button class="text-button" type="button" data-recurring-day-preset="clear">Clear</button>
+              </div>
+            </div>
+            <div class="weekday-picker">
+              <label><input type="checkbox" value="monday" data-recurring-day /><span>Mon</span></label>
+              <label><input type="checkbox" value="tuesday" data-recurring-day /><span>Tue</span></label>
+              <label><input type="checkbox" value="wednesday" data-recurring-day /><span>Wed</span></label>
+              <label><input type="checkbox" value="thursday" data-recurring-day /><span>Thu</span></label>
+              <label><input type="checkbox" value="friday" data-recurring-day /><span>Fri</span></label>
+              <label><input type="checkbox" value="saturday" data-recurring-day /><span>Sat</span></label>
+              <label><input type="checkbox" value="sunday" data-recurring-day /><span>Sun</span></label>
+            </div>
+            <p id="recurring-days-help" class="recurring-field-help">Choose at least one day.</p>
+          </div>
+
+          <div class="recurring-time-row">
+            <div class="recurring-time-mode" role="radiogroup" aria-label="Time type">
+              <label><input type="radio" name="recurring-time-mode" value="timed" checked /><span>Fixed time</span></label>
+              <label><input type="radio" name="recurring-time-mode" value="flexible" /><span>Flexible</span></label>
+            </div>
+            <div id="recurring-time-fields" class="recurring-time-fields">
+              <label class="field">
+                <span>Starts</span>
+                <input id="recurring-start-time" type="time" />
+              </label>
+              <span class="recurring-time-arrow" aria-hidden="true">to</span>
+              <label class="field">
+                <span>Ends</span>
+                <input id="recurring-end-time" type="time" />
+              </label>
+            </div>
+          </div>
+          <p id="recurring-time-help" class="recurring-field-help">Choose a start and end time for the same day.</p>
+
+          <details id="recurring-planning-details" class="recurring-planning-details">
+            <summary><span>Additional details</span><small>Optional</small></summary>
+            <div class="recurring-planning-details-body">
+              <div class="recurring-detail-fields">
+                <label class="field">
+                  <span>Drain level</span>
+                  <select id="recurring-drain-level">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Flexibility</span>
+                  <select id="recurring-flexibility">
+                    <option value="fixed">Fixed</option>
+                    <option value="somewhat_flexible">Somewhat flexible</option>
+                    <option value="flexible">Flexible</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Location</span>
+                  <input id="recurring-location" type="text" placeholder="Home, office, gym" />
+                </label>
+              </div>
+              <label class="field">
+                <span>Notes</span>
+                <textarea id="recurring-notes" rows="2" placeholder="Anything Boris should account for"></textarea>
+              </label>
+              <label class="records-toggle-field recurring-active-field" for="recurring-active">
+                <div><strong>Active</strong><p class="card-subtitle">Show this block in schedules.</p></div>
+                <span class="records-switch"><input id="recurring-active" type="checkbox" checked /><span class="records-switch-track"></span></span>
+              </label>
+            </div>
+          </details>
+
+          <p id="recurring-status" class="status-text schedules-modal-status" aria-live="polite"></p>
+          <div class="schedules-form-actions">
+            <button id="recurring-cancel" class="button-secondary" type="button">Cancel</button>
+            <button id="recurring-save" class="button-primary" type="submit">Save Block</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="planning-preferences-modal" class="schedules-modal" hidden>
+      <button class="schedules-modal-backdrop" type="button" data-close-schedules-modal="preferences" aria-label="Close planning preferences"></button>
+      <section class="schedules-modal-card schedules-preferences-modal-card" role="dialog" aria-modal="true" aria-labelledby="planning-preferences-title">
+        <div class="schedules-modal-header">
+          <div>
+            <h3 id="planning-preferences-title">Planning Preferences</h3>
+            <p class="card-subtitle">Defaults Boris uses when making scheduling suggestions.</p>
+          </div>
+          <button id="planning-preferences-close" class="icon-button" type="button" aria-label="Close planning preferences">×</button>
+        </div>
+        <form id="planning-preferences-form" class="stack-form planning-preferences-form">
+          <div class="planning-preferences-fields">
+            <label class="field"><span>Preferred workout time</span><select id="pref-workout-time"><option value="no_preference">No preference</option><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option></select></label>
+            <label class="field"><span>Prioritize first</span><select id="pref-task-type-first"><option value="no_preference">No preference</option><option value="school">School</option><option value="work">Work</option><option value="health">Health</option><option value="errands">Errands</option></select></label>
+            <label class="field"><span>Default buffer</span><div class="input-with-suffix"><input id="pref-default-buffer" type="number" min="0" max="180" step="5" /><span>minutes</span></div></label>
+          </div>
+          <div class="planning-preferences-toggles">
+            <label class="records-toggle-field" for="pref-prioritize-recovery"><span>Prioritize recovery when symptoms are elevated</span><span class="records-switch"><input id="pref-prioritize-recovery" type="checkbox" role="switch" checked /><span class="records-switch-track" aria-hidden="true"></span></span></label>
+            <label class="records-toggle-field" for="pref-buffer-after-work"><span>Leave buffer after work</span><span class="records-switch"><input id="pref-buffer-after-work" type="checkbox" role="switch" checked /><span class="records-switch-track" aria-hidden="true"></span></span></label>
+            <label class="records-toggle-field" for="pref-avoid-exercise-poor-sleep"><span>Avoid intense exercise after poor sleep</span><span class="records-switch"><input id="pref-avoid-exercise-poor-sleep" type="checkbox" role="switch" checked /><span class="records-switch-track" aria-hidden="true"></span></span></label>
+            <label class="records-toggle-field" for="pref-lighter-days"><span>Prefer lighter days after high-drain days</span><span class="records-switch"><input id="pref-lighter-days" type="checkbox" role="switch" checked /><span class="records-switch-track" aria-hidden="true"></span></span></label>
+          </div>
+          <label class="field"><span>Notes</span><textarea id="pref-notes" rows="3" placeholder="Optional planning rules or context"></textarea></label>
+          <p id="planning-preferences-status" class="status-text schedules-modal-status" aria-live="polite"></p>
+          <div class="schedules-form-actions"><button id="planning-preferences-cancel" class="button-secondary" type="button">Cancel</button><button class="button-primary" type="submit">Save Preferences</button></div>
+        </form>
+      </section>
+    </div>
+
+    <script id="boris-page-tour" type="application/json">
+      [
+        {"selector":"#recurring-week-grid","title":"See your weekly rhythm","body":"Recurring commitments give Boris a realistic picture of your usual weekly load."},
+        {"selectors":["#recurring-open-form","#recurring-list"],"title":"Manage recurring blocks","body":"Add work, classes, exercise, appointments, or personal routines once and reuse them every week."},
+        {"selector":"#schedules-google-connect","title":"Connect Google Calendar","body":"Calendar sync is optional and read-only. It gives Boris upcoming event context without changing your external calendar."}
+      ]
+    </script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

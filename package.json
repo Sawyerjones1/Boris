@@ -1,0 +1,32 @@
+{
+  "name": "boris",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal AI health agent with a web dashboard, REST API, and Telegram bot, backed by Neon Postgres and the OpenAI API.",
+  "main": "server.js",
+  "author": "Sawyer Jones",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sawyerjones1/Boris.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test",
+    "seed:demo": "node scripts/seed-demo-data.js",
+    "reset:demo": "node scripts/seed-demo-data.js --reset-only"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "marked": "^17.0.5",
+    "multer": "^2.3.0",
+    "node-cron": "^4.2.1",
+    "openai": "^6.6.0",
+    "pdf-parse": "^2.4.5",
+    "pg": "^8.20.0"
+  }
+}

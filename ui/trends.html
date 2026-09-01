@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Trends</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <style>
+      :root {
+        --trend-series-1: #5b8def;
+        --trend-series-2: #4f9c82;
+        --trend-series-3: #c9a53f;
+        --trend-series-4: #a879d8;
+        --trend-series-5: #d2765a;
+        --trend-series-6: #4c9fb3;
+        --trend-series-7: #d06f9a;
+        --trend-series-8: #7aa35a;
+        --trend-series-9: #d19752;
+        --trend-series-10: #697fd1;
+        --trend-series-11: #aa7d68;
+        --trend-series-12: #5eaaa0;
+        --trend-status-flare: #d1554b;
+        --trend-grid: #2b3038;
+        --trend-axis: #545b66;
+        --trend-tooltip: #1b1e23;
+      }
+    </style>
+  </head>
+  <body data-page="trends" class="chat-body">
+    <button id="sidebar-toggle" class="mobile-menu-button" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="dashboard-sidebar"><span></span><span></span><span></span></button>
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark"><span class="brand-icon">B</span><div><p class="brand-label">Personal Health Agent</p><h1 class="brand-name">Boris</h1></div></div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="/"><span class="nav-link-icon nav-icon-dashboard" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link" href="/chat"><span class="nav-link-icon nav-icon-boris" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link" href="/records"><span class="nav-link-icon nav-icon-records" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link" href="/schedules"><span class="nav-link-icon nav-icon-schedules" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link active" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon nav-icon-notes" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary"><a class="nav-link" href="/dev-logs"><span class="nav-link-icon nav-icon-logs" aria-hidden="true">◫</span><span>Logs</span></a></nav>
+      </div>
+      <div class="sidebar-footer"><p class="sidebar-version">Boris v1.0</p></div>
+    </aside>
+
+    <main class="trends-main">
+      <header class="trends-header">
+        <div><p class="eyebrow">Your history</p><h2 class="chat-title">Trends</h2><p class="card-subtitle">See how your logged health data changes over time.</p></div>
+      </header>
+
+      <section class="trends-toolbar" aria-label="Trends date range">
+        <div><strong>Date range</strong><p id="trends-range-label" class="card-subtitle">Last 90 days</p></div>
+        <div class="trends-range-options" role="group" aria-label="Select date range">
+          <button class="segment-button" type="button" data-trends-days="7">7 days</button>
+          <button class="segment-button" type="button" data-trends-days="30">30 days</button>
+          <button class="segment-button is-active" type="button" data-trends-days="90">90 days</button>
+          <button class="segment-button" type="button" data-trends-days="all">All time</button>
+        </div>
+      </section>
+      <p id="trends-status" class="status-text" role="status" aria-live="polite"></p>
+
+      <section class="trends-grid">
+        <article class="trend-card">
+          <header class="trend-card-header"><div><h3>Sleep hours</h3><p class="card-subtitle">Nightly sleep across the selected range.</p></div><span class="trend-inline-key"><i></i>Flare day</span></header>
+          <div id="trend-sleep" class="trend-chart" aria-label="Sleep hours chart"></div>
+        </article>
+        <article class="trend-card">
+          <header class="trend-card-header"><div><h3>Mood, energy, and stress</h3><p class="card-subtitle">Energy is the daily average of available morning and evening ratings.</p></div></header>
+          <div id="trend-scores-legend" class="trend-legend" aria-label="Chart legend"></div>
+          <div id="trend-scores" class="trend-chart" aria-label="Mood, energy, and stress chart"></div>
+        </article>
+        <article class="trend-card">
+          <header class="trend-card-header"><div><h3>Weekly flare days</h3><p class="card-subtitle">Number of marked flare days in each week.</p></div></header>
+          <div id="trend-flare" class="trend-chart" aria-label="Weekly flare-day count chart"></div>
+        </article>
+        <article class="trend-card">
+          <header class="trend-card-header"><div><h3>Exertion before flare days</h3><p class="card-subtitle">Average exercise minutes logged on the previous calendar day.</p></div></header>
+          <div id="trend-exertion" class="trend-chart" aria-label="Exercise duration before flare and non-flare days chart"></div>
+        </article>
+        <article class="trend-card trend-card-wide">
+          <header class="trend-card-header"><div><h3>Symptom frequency by week</h3><p class="card-subtitle">The five most frequently logged symptoms, with the remainder grouped as Other.</p></div></header>
+          <div id="trend-symptoms-legend" class="trend-legend" aria-label="Chart legend"></div>
+          <div id="trend-symptoms" class="trend-chart trend-chart-scroll" aria-label="Weekly symptom frequency chart"></div>
+        </article>
+      </section>
+    </main>
+    <script id="boris-page-tour" type="application/json">
+      [
+        {"selector":".trends-toolbar","title":"Choose a time window","body":"The 7, 30, 90-day, and all-time options update every chart together so each comparison uses the same period."},
+        {"selectors":["#trend-sleep","#trend-scores"],"title":"Follow daily signals","body":"Sleep, mood, average energy, and stress show how your day-to-day ratings move. Flare markers make changes around difficult days easier to see."},
+        {"selectors":["#trend-flare","#trend-exertion"],"title":"Examine flare patterns","body":"Weekly counts show when flares cluster. The exertion comparison asks whether exercise duration on the previous day differs before flare and non-flare days, with sample size shown in each tooltip."},
+        {"selector":"#trend-symptoms","title":"See which symptoms recur","body":"Boris discovers symptom names from your logs, charts the five most frequent by week, and groups the remainder as Other."}
+      ]
+    </script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

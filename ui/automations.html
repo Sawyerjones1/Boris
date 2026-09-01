@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Automations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="automations" class="chat-body">
+    <button id="sidebar-toggle" class="mobile-menu-button" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="dashboard-sidebar"><span></span><span></span><span></span></button>
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark"><span class="brand-icon">B</span><div><p class="brand-label">Personal Health Agent</p><h1 class="brand-name">Boris</h1></div></div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="/"><span class="nav-link-icon" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link" href="/chat"><span class="nav-link-icon" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link" href="/records"><span class="nav-link-icon" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link" href="/schedules"><span class="nav-link-icon" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link active" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary"><a class="nav-link" href="/dev-logs"><span class="nav-link-icon" aria-hidden="true">◫</span><span>Logs</span></a></nav>
+      </div>
+      <div class="sidebar-footer"><p class="sidebar-version">Boris v1.0</p></div>
+    </aside>
+
+    <main class="automations-main">
+      <header class="automations-header">
+        <div><p class="eyebrow">Proactive Boris</p><h2 class="chat-title">Automations</h2><p class="card-subtitle">Schedule Telegram reminders and health-aware morning briefs.</p></div>
+        <div class="automations-header-actions"><span id="automation-delivery-status" class="automation-connection is-pending">Checking Telegram</span><button id="automation-new" class="button-primary" type="button">New Automation</button></div>
+      </header>
+
+      <section class="automation-chat-hint">
+        <div><strong>You can also ask Boris.</strong><p>Try “Remind me to take my medication every weekday at 9 AM” or “Send a morning brief Monday, Wednesday, and Friday at 7:30 AM.”</p></div>
+        <a class="button-secondary" href="/chat">Ask Boris</a>
+      </section>
+
+      <section class="automation-summary" aria-label="Automation summary">
+        <article><span>Active</span><strong id="automation-active-count">—</strong></article>
+        <article><span>Next delivery</span><strong id="automation-next-run">—</strong></article>
+        <article><span>Timezone</span><strong id="automation-timezone">—</strong></article>
+      </section>
+
+      <section class="automation-list-card">
+        <div class="automation-list-header"><div><h3>Your automations</h3><p class="card-subtitle">Each delivery is recorded so failed sends are visible.</p></div></div>
+        <div id="automation-list" class="automation-list"><div class="empty-state">Loading automations…</div></div>
+      </section>
+    </main>
+
+    <div id="automation-editor-modal" class="schedules-modal" hidden>
+      <button class="schedules-modal-backdrop" type="button" data-automation-close aria-label="Close automation editor"></button>
+      <section class="schedules-modal-card automation-modal-card" role="dialog" aria-modal="true" aria-labelledby="automation-editor-title">
+        <div class="schedules-modal-header"><div><h3 id="automation-editor-title">New Automation</h3><p class="card-subtitle">Choose what Boris sends and exactly when it runs.</p></div><button class="icon-button" type="button" data-automation-close aria-label="Close">×</button></div>
+        <form id="automation-form" class="stack-form automation-form">
+          <input id="automation-id" type="hidden" />
+          <div class="automation-two-column">
+            <label class="field"><span>Automation type</span><select id="automation-type"><option value="reminder">Reminder</option><option value="morning_brief">Morning brief</option></select></label>
+            <label class="field"><span>Name</span><input id="automation-name" required maxlength="100" placeholder="Morning medication" /></label>
+          </div>
+          <label id="automation-message-field" class="field"><span>Telegram message</span><textarea id="automation-message" rows="3" placeholder="Time to take your morning medication."></textarea></label>
+          <label id="automation-instructions-field" class="field" hidden><span>Brief focus <em>Optional</em></span><textarea id="automation-instructions" rows="3" placeholder="Focus on sleep, pacing, and today's commitments."></textarea></label>
+          <label class="field"><span>Schedule</span><select id="automation-schedule-type"><option value="once">One time</option><option value="multiple">Several times</option><option value="recurring">Recurring</option></select></label>
+
+          <section id="automation-occurrence-section" class="automation-schedule-section">
+            <div class="automation-section-heading"><div><strong id="automation-occurrence-title">Delivery time</strong><p id="automation-occurrence-help">Choose the date and time.</p></div><button id="automation-add-occurrence" class="button-secondary compact-button" type="button" hidden>Add time</button></div>
+            <div id="automation-occurrences" class="automation-time-list"></div>
+          </section>
+
+          <section id="automation-recurring-section" class="automation-schedule-section" hidden>
+            <div><strong>Repeats on</strong><p>Choose one or more days.</p></div>
+            <div class="automation-day-presets"><button type="button" class="text-button" data-automation-day-preset="weekdays">Weekdays</button><button type="button" class="text-button" data-automation-day-preset="daily">Every day</button><button type="button" class="text-button" data-automation-day-preset="clear">Clear</button></div>
+            <div class="weekday-picker automation-weekdays">
+              <label><input type="checkbox" value="monday" data-automation-day /><span>Mon</span></label><label><input type="checkbox" value="tuesday" data-automation-day /><span>Tue</span></label><label><input type="checkbox" value="wednesday" data-automation-day /><span>Wed</span></label><label><input type="checkbox" value="thursday" data-automation-day /><span>Thu</span></label><label><input type="checkbox" value="friday" data-automation-day /><span>Fri</span></label><label><input type="checkbox" value="saturday" data-automation-day /><span>Sat</span></label><label><input type="checkbox" value="sunday" data-automation-day /><span>Sun</span></label>
+            </div>
+            <div class="automation-section-heading"><div><strong>Send at</strong><p>Add one or more times each selected day.</p></div><button id="automation-add-time" class="button-secondary compact-button" type="button">Add time</button></div>
+            <div id="automation-times" class="automation-time-list"></div>
+            <div class="automation-two-column"><label class="field"><span>Start date <em>Optional</em></span><input id="automation-start-date" type="date" /></label><label class="field"><span>End date <em>Optional</em></span><input id="automation-end-date" type="date" /></label></div>
+          </section>
+
+          <label class="records-toggle-field" for="automation-enabled"><div><strong>Active</strong><p class="card-subtitle">Pause without deleting this automation.</p></div><span class="records-switch"><input id="automation-enabled" type="checkbox" role="switch" checked /><span class="records-switch-track"></span></span></label>
+          <p id="automation-form-status" class="status-text schedules-modal-status" aria-live="polite"></p>
+          <div class="schedules-form-actions"><button class="button-secondary" type="button" data-automation-close>Cancel</button><button id="automation-save" class="button-primary" type="submit">Save Automation</button></div>
+        </form>
+      </section>
+    </div>
+
+    <div id="automation-history-modal" class="schedules-modal" hidden>
+      <button class="schedules-modal-backdrop" type="button" data-history-close aria-label="Close run history"></button>
+      <section class="schedules-modal-card automation-history-card" role="dialog" aria-modal="true" aria-labelledby="automation-history-title">
+        <div class="schedules-modal-header"><div><h3 id="automation-history-title">Run history</h3><p class="card-subtitle">The latest Telegram delivery attempts.</p></div><button class="icon-button" type="button" data-history-close aria-label="Close">×</button></div>
+        <div id="automation-history-list" class="automation-history-list"></div>
+      </section>
+    </div>
+    <script id="boris-page-tour" type="application/json">
+      [
+        {"selectors":["#automation-new","#automation-list"],"title":"Proactive messages","body":"Create Telegram reminders and morning briefs here. Run history makes successful and failed deliveries visible.","closeSelector":"[data-automation-close]"},
+        {"selector":"#automation-form","title":"Choose what and when","body":"Pick a reminder or morning brief, then schedule it once, at several specific times, or on recurring weekdays and times.","openSelector":"#automation-new","cleanupSelector":"[data-automation-close]"},
+        {"selector":".automation-chat-hint","title":"Or just ask Boris","body":"You can create the same automation in chat. Try: Remind me to take my medication every weekday at 9 AM.","closeSelector":"[data-automation-close]"}
+      ]
+    </script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

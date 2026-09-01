@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Records</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="records" class="chat-body">
+    <button
+      id="sidebar-toggle"
+      class="mobile-menu-button"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+      aria-controls="dashboard-sidebar"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark">
+          <span class="brand-icon">B</span>
+          <div>
+            <p class="brand-label">Personal Health Agent</p>
+            <h1 class="brand-name">Boris</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="/"><span class="nav-link-icon nav-icon-dashboard" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link" href="/chat"><span class="nav-link-icon nav-icon-boris" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link active" href="/records"><span class="nav-link-icon nav-icon-records" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link" href="/schedules"><span class="nav-link-icon nav-icon-schedules" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon nav-icon-notes" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary">
+          <a class="nav-link" href="/dev-logs"><span class="nav-link-icon nav-icon-logs" aria-hidden="true">◫</span><span>Logs</span></a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <p class="sidebar-version">Boris v1.0</p>
+      </div>
+    </aside>
+
+    <main class="records-main">
+      <header class="records-header">
+        <div>
+          <p class="eyebrow">Records</p>
+          <h2 class="chat-title">Medical Records</h2>
+          <p class="card-subtitle">Review your saved timeline here and upload new records when you need to.</p>
+        </div>
+      </header>
+
+      <section class="records-viewer-card">
+        <div class="records-toolbar">
+          <section class="records-subtabs" role="tablist" aria-label="Record types">
+            <button class="records-subtab is-active" type="button" data-records-tab="lab_results">Lab Results</button>
+            <button class="records-subtab" type="button" data-records-tab="doctor_visit">Doctor Visits</button>
+            <button class="records-subtab" type="button" data-records-tab="prescription">Prescriptions</button>
+            <button class="records-subtab" type="button" data-records-tab="supplement">Supplements</button>
+          </section>
+          <button id="records-open-upload" class="button-primary records-upload-launch" type="button">Upload</button>
+        </div>
+
+        <div class="records-panel-header">
+          <div>
+            <h3 id="records-viewer-title">Lab Results Timeline</h3>
+            <p class="card-subtitle">Newest records first. Click a card to expand full details.</p>
+          </div>
+        </div>
+        <div id="records-timeline" class="records-timeline">
+          <div class="empty-state">No records yet. Upload your first document using the Upload button above.</div>
+        </div>
+      </section>
+    </main>
+
+    <div id="records-upload-modal" class="records-modal" hidden>
+      <div id="records-upload-backdrop" class="records-modal-backdrop"></div>
+      <section class="records-upload-card records-modal-card" role="dialog" aria-modal="true" aria-labelledby="records-upload-title">
+        <div class="records-panel-header">
+          <div>
+            <h3 id="records-upload-title">Upload Lab Results</h3>
+            <p id="records-upload-subtitle" class="card-subtitle">PDFs and images are supported. Use the date the labs were collected, not the upload date. Boris reads files in memory only.</p>
+          </div>
+          <button id="records-modal-close" class="icon-button records-modal-close" type="button" aria-label="Close upload dialog">Ã—</button>
+        </div>
+
+        <div id="records-upload-view">
+          <div class="records-dropzone-shell">
+            <label id="records-dropzone" class="records-dropzone">
+              <input
+                id="records-file-input"
+                type="file"
+                accept=".pdf,image/jpeg,image/png,image/webp"
+                hidden
+              />
+              <span class="records-dropzone-title">Drag and drop a file here</span>
+              <span class="records-dropzone-copy">or click to choose a PDF, JPG, PNG, or WEBP</span>
+              <span id="records-selected-file" class="records-selected-file">No file selected yet.</span>
+            </label>
+            <button id="records-clear-file" class="records-clear-file" type="button" aria-label="Remove selected file" hidden>Ã—</button>
+          </div>
+
+          <div id="records-doctor-text-field" class="records-paste-section" hidden>
+            <div class="records-or-divider"><span>or paste the visit text</span></div>
+            <label class="field">
+              <span>Visit notes or after-visit summary</span>
+              <textarea id="records-doctor-text" rows="9" placeholder="Paste the doctor’s note, after-visit summary, or portal message here."></textarea>
+            </label>
+          </div>
+
+          <form id="records-upload-form" class="stack-form">
+            <label class="field">
+              <span id="records-date-label">Lab Work Date</span>
+              <input id="records-date" name="date" type="date" required />
+            </label>
+
+            <label class="field">
+              <span id="records-source-label">Source</span>
+              <input
+                id="records-source"
+                name="source"
+                type="text"
+                placeholder="Labcorp, Quest, My doctor"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span>Notes</span>
+              <textarea
+                id="records-notes"
+                name="notes"
+                rows="4"
+                placeholder="Optional context about this document"
+              ></textarea>
+            </label>
+
+            <button id="records-extract-button" class="button-primary" type="submit">
+              Upload and Extract
+            </button>
+            <p id="records-upload-status" class="status-text" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div id="records-prescription-view" hidden>
+          <form id="records-prescription-form" class="stack-form">
+            <div class="compact-fields">
+              <label class="field">
+                <span id="records-medication-name-label">Medication Name</span>
+                <input id="records-prescription-name" type="text" placeholder="Lisinopril" required />
+              </label>
+              <label class="field">
+                <span>Dose</span>
+                <input id="records-prescription-dose" type="text" placeholder="30 mg" required />
+              </label>
+            </div>
+
+            <div class="compact-fields">
+              <label class="field">
+                <span>Frequency</span>
+                <input id="records-prescription-frequency" type="text" placeholder="Once a day" required />
+              </label>
+              <label class="field">
+                <span>Time of Day</span>
+                <input id="records-prescription-time-of-day" type="text" placeholder="Morning" required />
+              </label>
+            </div>
+
+            <label class="field">
+              <span id="records-medication-purpose-label">What It's For</span>
+              <input id="records-prescription-purpose" type="text" placeholder="ADHD, hair loss, blood pressure" required />
+            </label>
+
+            <label class="records-toggle-field" for="records-prescription-active">
+              <div>
+                <strong>Active</strong>
+                <p class="card-subtitle">Turn this off if you stop taking it, without deleting the medication.</p>
+              </div>
+              <span class="records-switch">
+                <input id="records-prescription-active" type="checkbox" checked />
+                <span class="records-switch-track"></span>
+              </span>
+            </label>
+
+            <label class="field">
+              <span>Notes</span>
+              <textarea
+                id="records-prescription-notes"
+                rows="4"
+                placeholder="Optional context, instructions, or side notes"
+              ></textarea>
+            </label>
+
+            <button id="records-prescription-save" class="button-primary" type="submit">
+              Save Prescription
+            </button>
+            <p id="records-prescription-status" class="status-text" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div id="records-supplement-view" hidden>
+          <form id="records-supplement-form" class="stack-form">
+            <div class="records-supplement-scan-card">
+              <div>
+                <strong>Scan Supplement Label</strong>
+                <p class="card-subtitle">Upload a photo of the front label or Supplement Facts panel and Boris will populate the form for you.</p>
+              </div>
+              <div class="records-supplement-scan-actions">
+                <input id="records-supplement-file-input" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+                <button id="records-supplement-scan-button" class="button-secondary" type="button">Scan Label</button>
+                <span id="records-supplement-file-name" class="records-supplement-file-name">No label selected.</span>
+                <button id="records-supplement-clear-file" class="records-clear-file-inline" type="button" hidden>Remove</button>
+              </div>
+              <p id="records-supplement-scan-status" class="status-text" aria-live="polite"></p>
+            </div>
+
+            <div class="compact-fields">
+              <label class="field">
+                <span>Supplement Name</span>
+                <input id="records-supplement-name" type="text" placeholder="Thorne Basic Nutrients 2/Day" required />
+              </label>
+              <label class="field">
+                <span>Brand</span>
+                <input id="records-supplement-brand" type="text" placeholder="Thorne" />
+              </label>
+            </div>
+
+            <div class="compact-fields">
+              <label class="field">
+                <span>Form</span>
+                <input id="records-supplement-form-factor" type="text" placeholder="Capsule, powder, gummy" />
+              </label>
+              <label class="field">
+                <span>Serving Size</span>
+                <input id="records-supplement-serving-size" type="text" placeholder="2 capsules" />
+              </label>
+            </div>
+
+            <div class="compact-fields">
+              <label class="field">
+                <span>Dose You Take</span>
+                <input id="records-supplement-dose" type="text" placeholder="2 capsules" required />
+              </label>
+              <label class="field">
+                <span>Frequency</span>
+                <input id="records-supplement-frequency" type="text" placeholder="Once a day" required />
+              </label>
+            </div>
+
+            <div class="compact-fields">
+              <label class="field">
+                <span>Time of Day</span>
+                <input id="records-supplement-time-of-day" type="text" placeholder="Morning" />
+              </label>
+              <label class="field">
+                <span>What It's For</span>
+                <input id="records-supplement-purpose" type="text" placeholder="General health, energy, digestion" />
+              </label>
+            </div>
+
+            <label class="records-toggle-field" for="records-supplement-active">
+              <div>
+                <strong>Active</strong>
+                <p class="card-subtitle">Turn this off if you stop taking it, without deleting the supplement.</p>
+              </div>
+              <span class="records-switch">
+                <input id="records-supplement-active" type="checkbox" checked />
+                <span class="records-switch-track"></span>
+              </span>
+            </label>
+
+            <label class="field">
+              <span>Suggested Use</span>
+              <input id="records-supplement-suggested-use" type="text" placeholder="Take 2 capsules daily with food" />
+            </label>
+
+            <section class="records-ingredients-section">
+              <div class="records-ingredients-header">
+                <div>
+                  <strong>What's In It</strong>
+                  <p class="card-subtitle">Track the nutrients or actives inside this supplement so Boris can reason about your stack more accurately.</p>
+                </div>
+                <button id="records-supplement-add-ingredient" class="button-secondary" type="button">Add Ingredient</button>
+              </div>
+              <div id="records-supplement-ingredients" class="records-ingredients-list"></div>
+            </section>
+
+            <label class="field">
+              <span>Notes</span>
+              <textarea
+                id="records-supplement-notes"
+                rows="4"
+                placeholder="Optional context, instructions, or side notes"
+              ></textarea>
+            </label>
+
+            <button id="records-supplement-save" class="button-primary" type="submit">
+              Save Supplement
+            </button>
+            <p id="records-supplement-status" class="status-text" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div id="records-confirmation-view" hidden>
+          <div class="records-confirmation-header">
+            <div>
+              <p class="eyebrow">Review</p>
+              <h3 id="records-confirmation-title">Lab Results</h3>
+              <p id="records-confirmation-meta" class="card-subtitle"></p>
+            </div>
+          </div>
+
+          <div id="records-lab-review" class="records-review-table-wrap">
+            <table class="records-review-table">
+              <thead>
+                <tr>
+                  <th>Test</th>
+                  <th>Value</th>
+                  <th>Range</th>
+                  <th>Flag</th>
+                </tr>
+              </thead>
+              <tbody id="records-review-body"></tbody>
+            </table>
+          </div>
+
+          <div id="records-doctor-review" class="records-doctor-review" hidden>
+            <div id="records-doctor-warnings" class="records-doctor-warnings" hidden></div>
+            <div class="compact-fields">
+              <label class="field">
+                <span>Visit date</span>
+                <input id="records-review-visit-date" type="date" required />
+              </label>
+              <label class="field">
+                <span>Provider</span>
+                <input id="records-review-provider" type="text" />
+              </label>
+            </div>
+            <div class="compact-fields">
+              <label class="field">
+                <span>Credentials</span>
+                <input id="records-review-provider-credentials" type="text" />
+              </label>
+              <label class="field">
+                <span>Practice</span>
+                <input id="records-review-practice" type="text" />
+              </label>
+            </div>
+            <div class="compact-fields">
+              <label class="field">
+                <span>Visit type</span>
+                <input id="records-review-visit-type" type="text" />
+              </label>
+              <label class="field">
+                <span>Patient name shown in document</span>
+                <input id="records-review-patient-name" type="text" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Visit summary</span>
+              <textarea id="records-review-visit-summary" class="records-summary-editor" rows="22"></textarea>
+            </label>
+            <p class="card-subtitle">Review the summary carefully. Saving it refreshes the Health Picture, but never changes medications, supplements, symptoms, or Identity automatically.</p>
+          </div>
+
+          <div class="records-confirmation-actions">
+            <button id="records-add-value-button" class="button-secondary" type="button">Add missing value</button>
+            <button id="records-save-button" class="button-primary" type="button">Save to Boris</button>
+            <button id="records-cancel-button" class="button-secondary" type="button">Cancel</button>
+          </div>
+
+          <p id="records-review-summary" class="records-review-summary"></p>
+          <p id="records-save-status" class="status-text" aria-live="polite"></p>
+        </div>
+      </section>
+    </div>
+
+    <script id="boris-page-tour" type="application/json">
+      [
+        {"selector":".records-subtabs","title":"Browse by record type","body":"Switch between lab results, doctor visits, prescriptions, and supplements."},
+        {"selector":"#records-timeline","title":"Your medical timeline","body":"Saved records appear here newest first. Open a record to review its structured details."},
+        {"selector":"#records-open-upload","title":"Add a medical record","body":"Upload a PDF or image and Boris extracts the useful details. For labs, use the collection date rather than the upload date."}
+      ]
+    </script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

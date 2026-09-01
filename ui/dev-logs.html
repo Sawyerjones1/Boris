@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boris Dev Logs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body data-page="dev-logs" class="chat-body">
+    <button
+      id="sidebar-toggle"
+      class="mobile-menu-button"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+      aria-controls="dashboard-sidebar"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <aside id="dashboard-sidebar" class="sidebar">
+      <div>
+        <div class="brand-mark">
+          <span class="brand-icon">B</span>
+          <div>
+            <p class="brand-label">Personal Health Agent</p>
+            <h1 class="brand-name">Boris</h1>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="/"><span class="nav-link-icon nav-icon-dashboard" aria-hidden="true">▦</span><span>Dashboard</span></a>
+          <a class="nav-link" href="/chat"><span class="nav-link-icon nav-icon-boris" aria-hidden="true">◉</span><span>Boris</span></a>
+          <a class="nav-link" href="/records"><span class="nav-link-icon nav-icon-records" aria-hidden="true">✚</span><span>Medical Records</span></a>
+          <a class="nav-link" href="/schedules"><span class="nav-link-icon nav-icon-schedules" aria-hidden="true">◷</span><span>Schedules</span></a>
+          <a class="nav-link" href="/automations"><span class="nav-link-icon" aria-hidden="true">↻</span><span>Automations</span></a>
+          <a class="nav-link" href="/trends"><span class="nav-link-icon" aria-hidden="true">↗</span><span>Trends</span></a>
+          <a class="nav-link" href="/notes"><span class="nav-link-icon nav-icon-notes" aria-hidden="true">✎</span><span>Doctor's Notes</span></a>
+        </nav>
+
+        <div class="sidebar-section-label">Development</div>
+        <nav class="sidebar-nav sidebar-nav-secondary">
+          <a class="nav-link active" href="/dev-logs"><span class="nav-link-icon nav-icon-logs" aria-hidden="true">◫</span><span>Logs</span></a>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <p class="sidebar-version">Boris v1.0</p>
+      </div>
+    </aside>
+
+    <main class="dev-logs-main">
+      <header class="dev-logs-header">
+        <div>
+          <p class="eyebrow">Development</p>
+          <h2 class="chat-title">Logs</h2>
+          <p class="card-subtitle">Inspect every OpenAI request Boris makes, including token usage, model choice, latency, and estimated cost.</p>
+        </div>
+      </header>
+
+      <section class="dev-logs-summary-bar">
+        <article class="dev-logs-summary-card">
+          <span class="dev-logs-summary-label">Today</span>
+          <strong id="dev-logs-summary-today">Loading...</strong>
+        </article>
+        <article class="dev-logs-summary-card">
+          <span class="dev-logs-summary-label">Last 7 days</span>
+          <strong id="dev-logs-summary-7d">Loading...</strong>
+        </article>
+        <article class="dev-logs-summary-card">
+          <span class="dev-logs-summary-label">Last 30 days</span>
+          <strong id="dev-logs-summary-30d">Loading...</strong>
+        </article>
+      </section>
+
+      <section class="dev-logs-toolbar">
+        <label class="field">
+          <span>Start date</span>
+          <input id="dev-logs-start-date" type="date" />
+        </label>
+        <label class="field">
+          <span>End date</span>
+          <input id="dev-logs-end-date" type="date" />
+        </label>
+        <label class="field">
+          <span>Source</span>
+          <select id="dev-logs-source">
+            <option value="">All</option>
+            <option value="chat">chat</option>
+            <option value="doctor">doctor</option>
+            <option value="scheduler">scheduler</option>
+            <option value="extractor">extractor</option>
+            <option value="parser">parser</option>
+            <option value="macros">macros</option>
+            <option value="telegram">telegram</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Model</span>
+          <select id="dev-logs-model">
+            <option value="">All</option>
+            <option value="gpt-4.1">gpt-4.1</option>
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+            <option value="gpt-4.5">gpt-4.5</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select id="dev-logs-status">
+            <option value="all">All</option>
+            <option value="errors">Errors only</option>
+          </select>
+        </label>
+        <label class="field dev-logs-search-field">
+          <span>Search</span>
+          <input id="dev-logs-search" type="search" placeholder="Search label or output preview" />
+        </label>
+        <div class="dev-logs-toolbar-actions">
+          <button id="dev-logs-clear" class="button-secondary" type="button">Clear Filters</button>
+          <button id="dev-logs-export" class="button-secondary" type="button">Export CSV</button>
+          <button id="dev-logs-truncate" class="button-secondary" type="button">Truncate 30+ Day Prompts</button>
+        </div>
+      </section>
+
+      <section class="dev-logs-layout">
+        <aside class="dev-logs-list-panel">
+          <div class="dev-logs-list-header">
+            <h3>API Calls</h3>
+            <p id="dev-logs-list-meta" class="card-subtitle" role="status">Loading logs...</p>
+          </div>
+          <div id="dev-logs-list" class="dev-logs-list">
+            <div class="empty-state">Loading API calls...</div>
+          </div>
+          <div class="dev-logs-list-footer">
+            <label class="dev-logs-page-size" for="dev-logs-page-size">
+              Calls per page
+              <input id="dev-logs-page-size" type="number" min="1" max="100" step="1" value="20" />
+            </label>
+            <nav class="dev-logs-pagination" aria-label="API calls pagination">
+              <button id="dev-logs-previous" class="button-secondary" type="button" disabled>Previous</button>
+              <span id="dev-logs-page" class="card-subtitle" role="status">Page 1</span>
+              <button id="dev-logs-next" class="button-secondary" type="button" disabled>Next</button>
+            </nav>
+          </div>
+        </aside>
+
+        <article id="dev-logs-detail" class="dev-logs-detail-panel">
+          <div class="empty-state">Select a log to inspect its prompt, response, token usage, and metadata.</div>
+        </article>
+      </section>
+    </main>
+
+    <script src="/vendor/marked/marked.umd.js"></script>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>
