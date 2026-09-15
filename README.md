@@ -8,6 +8,19 @@ The project is designed to answer questions that a single long chat thread handl
 
 > Boris is a personal tracking and software demonstration project. It is not a medical device and does not diagnose conditions or replace professional medical advice.
 
+![Trends page showing sleep, flare days, mood and energy, exertion, and symptom frequency charts](docs/images/trends.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/morning-brief-telegram.png" alt="A scheduled morning brief delivered over Telegram" /></td>
+<td width="50%"><img src="docs/images/logs.png" alt="API logs showing token usage, latency, and cost per request" /></td>
+</tr>
+<tr>
+<td><em>A scheduled morning brief, generated from logged data and delivered over Telegram.</em></td>
+<td><em>Every model call is recorded with tokens, latency, and estimated cost.</em></td>
+</tr>
+</table>
+
 ## Product tour
 
 - **Daily dashboard:** Track sleep, energy, mood, stress, vitals, medications, supplements, symptoms, meals, hydration, exercise, flare days, and journal notes.
@@ -67,7 +80,7 @@ flowchart LR
 ### Prerequisites
 
 - Node.js 20 or newer
-- A Postgres database
+- A Postgres database. Any Postgres 14+ instance works, including a local one. Boris was developed against [Neon](https://neon.tech), whose free tier is enough to run the whole project.
 - An OpenAI API key for AI-powered onboarding, chat, summaries, and extraction
 
 ### Setup
@@ -75,7 +88,6 @@ flowchart LR
 1. Clone the repository and install the locked dependencies:
 
    ```bash
-   git clone https://github.com/Sawyerjones1/Boris.git
    cd Boris
    npm ci
    ```
@@ -152,6 +164,8 @@ TELEGRAM_ALLOWED_CHAT_ID=
 ```
 
 Send `/start` or `/id` to the bot to retrieve the chat ID. Boris rejects incoming Telegram messages until an allowed chat ID is configured. The Node process must remain running for polling, reminders, and briefs to work.
+
+Two optional overrides are also recognized. `TELEGRAM_CHAT_ID` acts as a fallback when `TELEGRAM_ALLOWED_CHAT_ID` is not set, and `TELEGRAM_USER_ID` routes inbound Telegram messages to a specific user ID instead of the one in `config.json`. Neither is needed for a standard single-user setup.
 
 ### Google Calendar
 
