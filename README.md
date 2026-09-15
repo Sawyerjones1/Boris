@@ -95,6 +95,7 @@ flowchart LR
 1. Clone the repository and install the locked dependencies:
 
    ```bash
+   git clone https://github.com/Sawyerjones1/Boris.git
    cd Boris
    npm ci
    ```
