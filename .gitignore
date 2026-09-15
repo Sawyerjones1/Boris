@@ -26,9 +26,12 @@ pnpm-debug.log*
 tmp/
 temp/
 
-# Portfolio demo media - large video/screenshots hosted outside the repo
+# Portfolio demo media - large video/screenshots hosted outside the repo.
+# README images live in docs/images/ and are tracked.
 Boris-Demo/
 boris-demo/
+Screenshots/
+screenshots/
 
 # Local tooling / editor state
 .claude/

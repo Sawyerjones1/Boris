@@ -8,6 +8,17 @@ The project is designed to answer questions that a single long chat thread handl
 
 > Boris is a personal tracking and software demonstration project. It is not a medical device and does not diagnose conditions or replace professional medical advice.
 
+<table>
+<tr>
+<td width="50%"><img src="docs/images/dashboard.png" alt="Daily dashboard with vitals, supplements, symptoms, meals, and exercise for a single day" /></td>
+<td width="50%"><img src="docs/images/chat.png" alt="Chat thread showing plain-language logging, a data-grounded answer, and a reminder being scheduled" /></td>
+</tr>
+<tr>
+<td><em>One day of structured tracking. Every field autosaves and the whole page is scoped by date.</em></td>
+<td><em>The same thread logs data, answers questions from your own history, and schedules reminders.</em></td>
+</tr>
+</table>
+
 ![Trends page showing sleep, flare days, mood and energy, exertion, and symptom frequency charts](docs/images/trends.png)
 
 <table>
