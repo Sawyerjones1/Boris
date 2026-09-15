@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const { Pool } = require("pg");
+const { parseIntoClientConfig } = require("pg-connection-string");
 const { isPlainObject, numberOrNull } = require("./utils");
 
 function createError(message, statusCode = 500) {
@@ -33,10 +34,60 @@ if (!DATABASE_URL) {
   throw createError("Missing required DATABASE_URL configuration for Neon Postgres.", 500);
 }
 
-const pool = new Pool({
-  connectionString: DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+function buildDatabaseConfig(connectionString) {
+  let url;
+  try {
+    url = new URL(connectionString);
+    if (!["postgres:", "postgresql:"].includes(url.protocol)) throw new Error();
+  } catch (_error) {
+    throw createError("DATABASE_URL must be a valid postgres:// or postgresql:// URL.");
+  }
+  for (const key of ["ssl", "sslmode", "sslcert", "sslkey", "sslrootcert", "sslnegotiation", "uselibpqcompat"]) {
+    if (url.searchParams.getAll(key).length > 1) {
+      throw createError("Duplicate SSL options are not supported in DATABASE_URL.");
+    }
+  }
+
+  const mode = url.searchParams.get("sslmode");
+  const sslFlag = url.searchParams.get("ssl");
+  if (mode && !["disable", "prefer", "require", "verify-ca", "verify-full"].includes(mode)) {
+    throw createError("Unsupported DATABASE_URL sslmode. Use verify-full for TLS or disable for a local database.");
+  }
+  if (sslFlag !== null && !["true", "1", "false", "0"].includes(sslFlag)) {
+    throw createError("DATABASE_URL ssl must be true or false. Unverified TLS is not supported.");
+  }
+  const disabled = mode === "disable" || ["false", "0"].includes(sslFlag);
+  const requested = Boolean(mode && mode !== "disable") || ["true", "1"].includes(sslFlag)
+    || ["sslcert", "sslkey", "sslrootcert"].some((key) => url.searchParams.has(key))
+    || url.searchParams.get("sslnegotiation") === "direct";
+  if (disabled && requested) {
+    throw createError("Conflicting DATABASE_URL SSL options: TLS is both enabled and disabled.");
+  }
+
+  // Keep hosted URLs using sslmode=require working, but always verify both
+  // the certificate chain and hostname, including with libpq compatibility.
+  if (mode && mode !== "disable") url.searchParams.set("sslmode", "verify-full");
+  if (sslFlag !== null) url.searchParams.set("ssl", disabled ? "0" : "true");
+  const config = parseIntoClientConfig(url.toString());
+  if (config.connectionString) {
+    throw createError("Nested connectionString options are not supported in DATABASE_URL.");
+  }
+  const host = String(config.host || "localhost").toLowerCase();
+  if (host.startsWith("[") && host.endsWith("]")) config.host = host.slice(1, -1);
+  const local = host === "localhost" || host === "::1" || host === "[::1]"
+    || /^127(?:\.\d{1,3}){3}$/.test(host) || host.startsWith("/");
+  if (disabled && !local) {
+    throw createError("Remote databases require verified TLS. Remove sslmode=disable or ssl=false from DATABASE_URL.");
+  }
+  config.ssl = !disabled && (requested || !local)
+    ? { ...config.ssl, rejectUnauthorized: true }
+    : false;
+  // Pass parsed options only: a connectionString would make pg parse SSL a
+  // second time and overwrite the verification policy above.
+  return config;
+}
+
+const pool = new Pool(buildDatabaseConfig(DATABASE_URL));
 
 function textOrNull(value) {
   const normalized = String(value ?? "").trim();
@@ -2647,6 +2698,7 @@ async function comparePeriods(userId, period1Start, period1End, period2Start, pe
 }
 
 module.exports = {
+  buildDatabaseConfig,
   pool,
   initSchema,
   getMemoryFile,

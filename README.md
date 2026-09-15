@@ -125,6 +125,11 @@ flowchart LR
    DATABASE_URL=your_postgres_connection_string
    ```
 
+   - **Local Postgres:** use a URL such as `postgresql://user:password@127.0.0.1:5432/boris`. Loopback hosts (`localhost`, `127.x.x.x`, `::1`) and Unix sockets default to non-TLS connections. `?sslmode=disable` is also accepted locally.
+   - **Hosted Postgres / Neon:** use the provider's URL, preferably with `?sslmode=verify-full`. Remote connections always verify the certificate chain and hostname. Existing `sslmode=require`, `prefer`, and `verify-ca` URLs are upgraded to full verification; they never permit weaker TLS.
+   - For a private certificate authority, supply `sslrootcert` in the URL with the path to its CA certificate. Client certificate options `sslcert` and `sslkey` are also supported. Explicit TLS options enable verified TLS even on localhost.
+   - Conflicting SSL options, unverified modes, and non-TLS remote connections are rejected. Boris derives its TLS policy from `DATABASE_URL`; `PGSSLMODE` does not override it.
+
 5. Start Boris:
 
    ```bash
