@@ -116,6 +116,8 @@ Daily logs use a JSON-oriented record because the dashboard evolves more quickly
 
 Symptoms are defined in `user_lists`, then copied into each day's state with explicit logged/present semantics. Prescriptions and supplements use dedicated tables because they have independent lifecycle, source, dose, frequency, and active-state requirements.
 
+Daily-log patches run in a transaction. An insert-if-missing establishes the row, then `SELECT ... FOR UPDATE` locks it before the current state is read and merged. This serializes overlapping updates from browser autosave, Telegram, and weather, including simultaneous first writes for a date.
+
 ## Medical records
 
 Supported record types are labs, doctor visits, prescriptions, and supplements.
@@ -197,7 +199,7 @@ The server should remain local or sit behind an authenticated private access lay
 - Startup SQL favors zero-setup installation over versioned migrations.
 - Cron and Telegram polling are process-local, so production operation requires one persistent worker or an external job architecture.
 - AI extraction and summaries remain probabilistic. The editable review step and source preservation are part of the correctness model.
-- Automated tests emphasize domain transforms and failure handling. Full browser end-to-end and live-provider integration tests are not included.
+- Automated tests cover domain transforms, failure handling, HTTP binding, and concurrent writes against disposable PostgreSQL. Full browser end-to-end and live-provider integration tests are not included.
 
 ## Verification
 

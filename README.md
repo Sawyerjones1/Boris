@@ -216,6 +216,8 @@ npm test
 
 The test suite covers scheduling, automations, medical-record normalization, profile generation, API-log pagination and failures, tutorials, and trend aggregation. GitHub Actions runs the suite on pushes to `main` and on pull requests.
 
+`npm test` uses isolated test configuration and needs no `.env` or provider credentials. Concurrency tests start a real, temporary PostgreSQL 17 instance bound to loopback, exercise separate database connections, then stop it and remove its temporary data. The development-only `embedded-postgres` dependency installs the platform binaries through npm; no Docker or existing database is required. Run tests as a normal user (Postgres refuses to run as root).
+
 ## Privacy and deployment
 
 Boris intentionally targets one trusted user. The browser application and REST API do not include account authentication, authorization, CSRF protection, or multi-tenant isolation. Anyone who can reach the server can read and modify the configured user's data.

@@ -1636,58 +1636,69 @@ async function updateLog(userId, date, data) {
     keys: Object.keys(data)
   });
 
-  const existingLog = await getLog(normalizedUserId, normalizedDate);
-  const baseLog = existingLog || createEmptyDailyLog(normalizedDate);
-  const mergedLog = mergeDeep(baseLog, data);
-  mergedLog.userId = normalizedUserId;
-  mergedLog.date = normalizedDate;
-  mergedLog.lastUpdated = new Date().toISOString();
+  return withTransaction(async (client) => {
+    // Ensure a row exists before locking it. A concurrent first insert waits on
+    // this transaction, so the creation path has the same protection as updates.
+    await client.query(
+      "INSERT INTO daily_logs (user_id, date) VALUES ($1, $2) ON CONFLICT (user_id, date) DO NOTHING",
+      [normalizedUserId, normalizedDate]
+    );
+    const existing = await client.query(
+      "SELECT * FROM daily_logs WHERE user_id = $1 AND date = $2 FOR UPDATE",
+      [normalizedUserId, normalizedDate]
+    );
+    const baseLog = mergeDeep(createEmptyDailyLog(normalizedDate), dailyLogRowToLog(existing.rows[0]));
+    const mergedLog = mergeDeep(baseLog, data);
+    mergedLog.userId = normalizedUserId;
+    mergedLog.date = normalizedDate;
+    mergedLog.lastUpdated = new Date().toISOString();
 
-  const vitals = objectOrEmpty(mergedLog.vitals);
+    const vitals = objectOrEmpty(mergedLog.vitals);
 
-  const result = await query(
-    `INSERT INTO daily_logs (
-      user_id, date, vitals, vitals_readings, supplements, symptoms, intake, exercise,
-      flare_day, good_day, journal, journal_entries, what_changed, weather, last_updated
-    ) VALUES (
-      $1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb,
-      $9, $10, $11, $12::jsonb, $13, $14::jsonb, $15
-    )
-    ON CONFLICT (user_id, date) DO UPDATE SET
-      vitals = EXCLUDED.vitals,
-      vitals_readings = EXCLUDED.vitals_readings,
-      supplements = EXCLUDED.supplements,
-      symptoms = EXCLUDED.symptoms,
-      intake = EXCLUDED.intake,
-      exercise = EXCLUDED.exercise,
-      flare_day = EXCLUDED.flare_day,
-      good_day = EXCLUDED.good_day,
-      journal = EXCLUDED.journal,
-      journal_entries = EXCLUDED.journal_entries,
-      what_changed = EXCLUDED.what_changed,
-      weather = EXCLUDED.weather,
-      last_updated = EXCLUDED.last_updated
-    RETURNING *`,
-    [
-      normalizedUserId,
-      normalizedDate,
-      JSON.stringify(vitals),
-      JSON.stringify(arrayOrEmpty(mergedLog.vitalsReadings)),
-      JSON.stringify(arrayOrEmpty(mergedLog.supplements)),
-      JSON.stringify(arrayOrEmpty(mergedLog.symptoms)),
-      JSON.stringify(objectOrEmpty(mergedLog.intake)),
-      JSON.stringify(arrayOrEmpty(mergedLog.exercise)),
-      Boolean(mergedLog.flareDay),
-      Boolean(vitals.goodDay),
-      textOrNull(mergedLog.journal),
-      JSON.stringify(arrayOrEmpty(mergedLog.journalEntries)),
-      textOrNull(mergedLog.whatChanged),
-      JSON.stringify(mergedLog.weather || null),
-      mergedLog.lastUpdated
-    ]
-  );
+    const result = await client.query(
+      `INSERT INTO daily_logs (
+        user_id, date, vitals, vitals_readings, supplements, symptoms, intake, exercise,
+        flare_day, good_day, journal, journal_entries, what_changed, weather, last_updated
+      ) VALUES (
+        $1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6::jsonb, $7::jsonb, $8::jsonb,
+        $9, $10, $11, $12::jsonb, $13, $14::jsonb, $15
+      )
+      ON CONFLICT (user_id, date) DO UPDATE SET
+        vitals = EXCLUDED.vitals,
+        vitals_readings = EXCLUDED.vitals_readings,
+        supplements = EXCLUDED.supplements,
+        symptoms = EXCLUDED.symptoms,
+        intake = EXCLUDED.intake,
+        exercise = EXCLUDED.exercise,
+        flare_day = EXCLUDED.flare_day,
+        good_day = EXCLUDED.good_day,
+        journal = EXCLUDED.journal,
+        journal_entries = EXCLUDED.journal_entries,
+        what_changed = EXCLUDED.what_changed,
+        weather = EXCLUDED.weather,
+        last_updated = EXCLUDED.last_updated
+      RETURNING *`,
+      [
+        normalizedUserId,
+        normalizedDate,
+        JSON.stringify(vitals),
+        JSON.stringify(arrayOrEmpty(mergedLog.vitalsReadings)),
+        JSON.stringify(arrayOrEmpty(mergedLog.supplements)),
+        JSON.stringify(arrayOrEmpty(mergedLog.symptoms)),
+        JSON.stringify(objectOrEmpty(mergedLog.intake)),
+        JSON.stringify(arrayOrEmpty(mergedLog.exercise)),
+        Boolean(mergedLog.flareDay),
+        Boolean(vitals.goodDay),
+        textOrNull(mergedLog.journal),
+        JSON.stringify(arrayOrEmpty(mergedLog.journalEntries)),
+        textOrNull(mergedLog.whatChanged),
+        JSON.stringify(mergedLog.weather || null),
+        mergedLog.lastUpdated
+      ]
+    );
 
-  return dailyLogRowToLog(result.rows[0]);
+    return dailyLogRowToLog(result.rows[0]);
+  });
 }
 
 async function replaceDailyLog(userId, date, logData) {
