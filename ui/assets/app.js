@@ -21,7 +21,11 @@ const appState = {
   symptomsMaster: [],
   symptomListSaveQueue: Promise.resolve(),
   saveQueue: Promise.resolve(),
+  saveQueuesByDate: new Map(),
   pendingSaves: 0,
+  logEditVersion: 0,
+  dashboardLoadId: 0,
+  dashboardLoading: false,
   activeModal: null,
   editingTime: null,
   pendingMealEstimate: null,
@@ -615,14 +619,20 @@ async function loadWeatherData() {
   }
 
   renderWeatherWidget(null)
+  const selectedDate = getDashboardDateString()
+  const loadId = appState.dashboardLoadId
+  const isCurrent = () => loadId === appState.dashboardLoadId
+    && selectedDate === getDashboardDateString() && appState.log?.date === selectedDate
 
   try {
     const weather = await fetchJson("/weather/today", {
       cache: "no-store"
     })
+    if (!isCurrent()) return
     appState.log.weather = weather
     renderWeatherWidget(weather)
   } catch (_error) {
+    if (!isCurrent()) return
     renderWeatherWidget(appState.log?.weather || null)
   }
 }
@@ -1400,11 +1410,29 @@ function mergeLogPatch(target, patch) {
   return merged
 }
 
+function setDashboardLoading(loading) {
+  appState.dashboardLoading = loading
+  // Date navigation stays available, but old-day fields must not be edited
+  // while a new day is loading.
+  document.querySelectorAll("[data-card], #flare-toggle, #good-day-toggle").forEach((node) => {
+    node.inert = loading
+    node.setAttribute("aria-busy", String(loading))
+    node.classList.toggle("is-loading", loading)
+  })
+}
+
 async function loadDashboardData(selectedDate = getDashboardDateString()) {
+  const loadId = ++appState.dashboardLoadId
+  const isCurrent = () => loadId === appState.dashboardLoadId && selectedDate === getDashboardDateString()
   appState.dashboardDate = selectedDate
+  setDashboardLoading(true)
   const viewingToday = isViewingToday()
   ensureWeatherRefreshLoop()
   setStatus(viewingToday ? "Loading today's log..." : "Loading selected log...", "is-loading")
+  // On returning to a day, fetch its state after outstanding saves for that day
+  // finish. Saves for other dates do not delay navigation.
+  await appState.saveQueuesByDate.get(selectedDate)
+  if (!isCurrent()) return
   const logPromise = viewingToday
     ? fetchJson("/log/today")
     : fetchJson(`/log/${encodeURIComponent(selectedDate)}`)
@@ -1419,39 +1447,53 @@ async function loadDashboardData(selectedDate = getDashboardDateString()) {
       activePrescriptionsPromise,
       symptomsPromise
     ])
+    if (!isCurrent()) return
+    if (log.date !== selectedDate) throw new Error("The server returned a log for a different date. Reload this day.")
     appState.log = normalizeLog(log)
     appState.symptomsMaster = symptoms
     appState.pendingMealEstimate = null
     syncDashboardTrackingLists()
     renderDashboard()
+    setDashboardLoading(false)
     loadWeatherData().catch(() => {})
     setStatus("Ready", "is-success")
   } catch (error) {
-    await Promise.allSettled([
+    const settled = await Promise.allSettled([
       activeSupplementsPromise,
       activePrescriptionsPromise,
       symptomsPromise
     ])
+    if (!isCurrent()) return
+    if (!String(error.message || "").includes("No log found")) {
+      setStatus(error.message, "is-error")
+      showToast(error.message, "error")
+      return
+    }
     appState.log = createDefaultLog(selectedDate)
-    appState.symptomsMaster = await symptomsPromise.catch(() => [])
+    appState.symptomsMaster = settled[2].status === "fulfilled" ? settled[2].value : []
     appState.pendingMealEstimate = null
     syncDashboardTrackingLists()
     renderDashboard()
+    setDashboardLoading(false)
     loadWeatherData().catch(() => {})
-    if (String(error.message || "").includes("No log found")) {
-      setStatus("No log for this date yet", "is-success")
-      return
-    }
-
-    setStatus(error.message, "is-error")
-    showToast(error.message, "error")
+    setStatus("No log for this date yet", "is-success")
   }
 }
 
 function queueSave(patch, options = {}) {
   const { card = "", message = "Saved" } = options
-  const targetDate = appState.log.date
-  appState.log = normalizeLog(mergeLogPatch(appState.log, patch))
+  const targetDate = getDashboardDateString()
+  if (appState.dashboardLoading || appState.log?.date !== targetDate) {
+    showToast("Wait for this day's log to load before editing.", "error")
+    return Promise.resolve()
+  }
+  const loadId = appState.dashboardLoadId
+  const editVersion = ++appState.logEditVersion
+  const isCurrent = () => loadId === appState.dashboardLoadId && !appState.dashboardLoading
+    && targetDate === getDashboardDateString() && appState.log?.date === targetDate
+  // Event handlers may mutate their arrays again before this queued request runs.
+  const savedPatch = JSON.parse(JSON.stringify(patch))
+  appState.log = normalizeLog(mergeLogPatch(appState.log, savedPatch))
   renderDashboard()
   appState.pendingSaves += 1
   setStatus("Saving...", "is-loading")
@@ -1460,7 +1502,7 @@ function queueSave(patch, options = {}) {
     setCardLoading(card, true)
   }
 
-  appState.saveQueue = appState.saveQueue
+  const save = appState.saveQueue
     .then(async () => {
       const updatedLog = await fetchJson("/log/update", {
         method: "POST",
@@ -1469,36 +1511,48 @@ function queueSave(patch, options = {}) {
         },
         body: JSON.stringify({
           date: targetDate,
-          patch
+          patch: savedPatch
         })
       })
 
-      appState.log = normalizeLog(updatedLog)
-      syncDashboardTrackingLists()
-      renderDashboard()
-      setStatus(message, "is-success")
+      if (updatedLog.date !== targetDate) throw new Error("The save response belongs to a different date. Reload this day.")
+      if (!isCurrent()) return
+      // A newer queued save or input event owns the displayed draft now.
+      if (editVersion === appState.logEditVersion) {
+        appState.log = normalizeLog(updatedLog)
+        syncDashboardTrackingLists()
+        renderDashboard()
+        setStatus(message, "is-success")
+      } else {
+        setStatus(appState.pendingSaves > 1 ? "Saving..." : "Unsaved changes", "is-loading")
+      }
     })
     .catch((error) => {
-      setStatus(error.message, "is-error")
-      showToast(error.message, "error")
+      if (isCurrent()) setStatus(error.message, "is-error")
+      showToast(`Could not save ${targetDate}: ${error.message}`, "error")
     })
     .finally(() => {
       appState.pendingSaves = Math.max(0, appState.pendingSaves - 1)
+      if (appState.saveQueuesByDate.get(targetDate) === save) appState.saveQueuesByDate.delete(targetDate)
 
-      if (card) {
+      if (card && isCurrent()) {
         setCardLoading(card, false)
       }
 
-      if (appState.pendingSaves === 0 && !document.getElementById("save-status")?.classList.contains("is-error")) {
+      if (isCurrent() && editVersion === appState.logEditVersion && appState.pendingSaves === 0
+          && !document.getElementById("save-status")?.classList.contains("is-error")) {
         window.setTimeout(() => {
-          if (appState.pendingSaves === 0) {
+          if (isCurrent() && editVersion === appState.logEditVersion && appState.pendingSaves === 0
+              && !document.getElementById("save-status")?.classList.contains("is-error")) {
             setStatus("All changes saved", "is-success")
           }
         }, 240)
       }
     })
 
-  return appState.saveQueue
+  appState.saveQueue = save
+  appState.saveQueuesByDate.set(targetDate, save)
+  return save
 }
 
 function findItemByName(items, name) {
@@ -1987,6 +2041,9 @@ function toggleSidebar(forceOpen) {
 }
 
 function setupDashboardEvents() {
+  document.addEventListener("input", (event) => {
+    if (event.target?.closest("[data-card]")) appState.logEditVersion += 1
+  })
   document.getElementById("sidebar-toggle")?.addEventListener("click", () => toggleSidebar())
   document.getElementById("sidebar-backdrop")?.addEventListener("click", () => toggleSidebar(false))
   document.getElementById("dashboard-prev-date")?.addEventListener("click", async () => {
