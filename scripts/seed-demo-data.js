@@ -5,6 +5,7 @@ const {
   initSchema,
   replaceDailyLog,
   saveMemoryFile,
+  saveUserList,
   saveSummary,
   saveSupplement,
   savePrescription,
@@ -543,6 +544,11 @@ This document preserves the information submitted for the fictional portfolio pe
     logsInOrder.push({ date, index, log });
     await replaceDailyLog(userId, date, log);
   }
+
+  // New days build their checklist from this list, independently of saved logs.
+  await saveUserList(userId, "symptoms", [...new Set(
+    logsInOrder.flatMap(({ log }) => log.symptoms.map(({ name }) => name))
+  )]);
 
   // Daily summaries: mirrors DAILY_SUMMARY_PROMPT (core/scheduler.js) - short
   // interpretive notes, not a recap of the structured log. Real Boris only
