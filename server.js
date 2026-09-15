@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const { once } = require("node:events");
 
 const { isPlainObject } = require("./core/utils");
 
@@ -156,7 +157,8 @@ const upload = multer({
     parts: 21
   }
 });
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT || 3000);
+const HOST = String(process.env.HOST || "").trim() || "127.0.0.1";
 const ROOT_DIR = __dirname;
 const UI_DIR = path.join(ROOT_DIR, "ui");
 const SUMMARY_TYPES = ["daily", "weekly", "monthly", "quarterly", "yearly"];
@@ -2875,17 +2877,27 @@ async function startServer() {
     logEvent("Neon schema initialized.");
   } catch (error) {
     console.error("[Boris] Failed to initialize Neon schema", error);
-    process.exit(1);
+    throw error;
   }
 
-  app.listen(PORT, () => {
-    const openAIClient = getOpenAIClient();
-    logEvent(openAIClient ? "OpenAI client initialized." : "OPENAI_API_KEY not set; AI features remain disabled.");
-    logEvent(`Server listening on http://localhost:${PORT}`);
-    initScheduler();
-    startAutomationRunner(automationDependencies);
-    startTelegramBridge();
+  const server = app.listen(PORT, HOST);
+  await once(server, "listening");
+  const address = server.address();
+  const displayHost = address.family === "IPv6" ? `[${address.address}]` : address.address;
+  const openAIClient = getOpenAIClient();
+  logEvent(openAIClient ? "OpenAI client initialized." : "OPENAI_API_KEY not set; AI features remain disabled.");
+  logEvent(`Server listening on http://${displayHost}:${address.port}`);
+  initScheduler();
+  startAutomationRunner(automationDependencies);
+  startTelegramBridge();
+  return server;
+}
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("[Boris] Server startup failed", error);
+    process.exit(1);
   });
 }
 
-startServer();
+module.exports = { app, startServer };

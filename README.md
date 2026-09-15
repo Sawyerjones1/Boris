@@ -218,6 +218,7 @@ Boris intentionally targets one trusted user. The browser application and REST A
 - Keep `.env` and `config.json` local; both are gitignored.
 - Use a separate database for fictional demo data.
 - Do not expose the Node server directly to the public internet.
+- Boris binds to `127.0.0.1` by default. For deliberate remote access, set `HOST` to a specific interface or `0.0.0.0` (all IPv4 interfaces) in `.env`. This does not add authentication; use an authenticated private access layer. Startup prints the actual bound address and port.
 - If hosting it remotely, put it behind access control such as a private network or authenticated reverse proxy.
 - OpenAI request logs can contain health information because prompts and outputs are retained for observability. Use the truncation control on the Logs page when appropriate.
 - Google credentials, Telegram credentials, and database credentials belong in environment variables, never tracked files.
