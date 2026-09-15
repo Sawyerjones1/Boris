@@ -3346,6 +3346,10 @@ body.records-modal-open {
   transform: translateY(-0.5rem);
 }
 
+.recurring-time-rail span:first-child {
+  transform: translateY(0);
+}
+
 .recurring-grid-days {
   display: grid;
   grid-template-columns: repeat(7, minmax(90px, 1fr));
@@ -3397,6 +3401,7 @@ body.records-modal-open {
   display: grid;
   gap: 4px;
   align-content: start;
+  min-height: 64px;
   padding: 10px 10px 9px;
   text-align: left;
   background: var(--card-bg);

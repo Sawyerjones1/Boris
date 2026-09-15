@@ -22,8 +22,13 @@ yarn-error.log*
 pnpm-debug.log*
 .tmp-*.out
 .tmp-*.err
+.tmp-chrome-profile*/
 tmp/
 temp/
+
+# Portfolio demo media - large video/screenshots hosted outside the repo
+Boris-Demo/
+boris-demo/
 
 # Local tooling / editor state
 .claude/
