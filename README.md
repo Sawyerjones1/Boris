@@ -8,29 +8,25 @@ The project is designed to answer questions that a single long chat thread handl
 
 > Boris is a personal tracking and software demonstration project. It is not a medical device and does not diagnose conditions or replace professional medical advice.
 
-<table>
-<tr>
-<td width="50%"><img src="docs/images/dashboard.png" alt="Daily dashboard with vitals, supplements, symptoms, meals, and exercise for a single day" /></td>
-<td width="50%"><img src="docs/images/chat.png" alt="Chat thread showing plain-language logging, a data-grounded answer, and a reminder being scheduled" /></td>
-</tr>
-<tr>
-<td><em>One day of structured tracking. Every field autosaves and the whole page is scoped by date.</em></td>
-<td><em>The same thread logs data, answers questions from your own history, and schedules reminders.</em></td>
-</tr>
-</table>
+![Daily dashboard with vitals, supplements, symptoms, meals, and exercise for a single day](docs/images/dashboard.png)
+
+*One day of structured tracking. Every field autosaves and the whole page is scoped by date.*
+
+![Chat thread showing plain-language logging, a data-grounded answer, and a reminder being scheduled](docs/images/chat.png)
+
+*The same thread logs data, answers questions from your own history, and schedules reminders.*
 
 ![Trends page showing sleep, flare days, mood and energy, exertion, and symptom frequency charts](docs/images/trends.png)
 
-<table>
-<tr>
-<td width="50%"><img src="docs/images/morning-brief-telegram.png" alt="A scheduled morning brief delivered over Telegram" /></td>
-<td width="50%"><img src="docs/images/logs.png" alt="API logs showing token usage, latency, and cost per request" /></td>
-</tr>
-<tr>
-<td><em>A scheduled morning brief, generated from logged data and delivered over Telegram.</em></td>
-<td><em>Every model call is recorded with tokens, latency, and estimated cost.</em></td>
-</tr>
-</table>
+*Charts are generated from whatever you have actually logged, with no fixed symptom list.*
+
+![A scheduled morning brief delivered over Telegram](docs/images/morning-brief-telegram.png)
+
+*A scheduled morning brief, generated from logged data and delivered over Telegram.*
+
+![API logs showing token usage, latency, and cost per request](docs/images/logs.png)
+
+*Every model call is recorded with tokens, latency, and estimated cost.*
 
 ## Product tour
 
