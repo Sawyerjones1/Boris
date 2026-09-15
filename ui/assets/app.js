@@ -2928,6 +2928,10 @@ function renderInlineMarkdown(value) {
   return escapeHtml(value)
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/`([^`]+)`/g, "<code>$1</code>")
+    // Internal links only. The href must start with a single slash, which
+    // rejects javascript:, absolute URLs, and protocol-relative //host paths so
+    // a model-authored link can never point off-site.
+    .replace(/\[([^\]]+)\]\((\/(?!\/)[A-Za-z0-9\-._~/?#[\]@!$&'()*+,;=%]*)\)/g, '<a href="$2">$1</a>')
   }
 
 function renderMarkdown(value) {
@@ -3486,6 +3490,13 @@ function getAssistantModeMeta(type, activeMode) {
     }
   }
 
+  if (type === "automation") {
+    return {
+      label: "Automation",
+      tone: "automation"
+    }
+  }
+
   if (activeMode === "recap" || type === "recap_answer") {
     return {
       label: "Daily Recap",
@@ -3538,7 +3549,7 @@ async function submitRecapAnswer(question, lastAnswer, messageId) {
     if (response.response) {
       const modeMeta = getAssistantModeMeta(response.type, chatState.mode)
       createChatMessage("assistant", response.response, {
-        markdown: response.type === "question",
+        markdown: response.type === "question" || response.type === "automation",
         modeLabel: modeMeta.label,
         modeTone: modeMeta.tone
       })
@@ -3615,7 +3626,7 @@ async function handleChatSubmit(event) {
     if (response.response) {
       const modeMeta = getAssistantModeMeta(response.type, requestMode)
       createChatMessage("assistant", response.response, {
-        markdown: response.type === "question",
+        markdown: response.type === "question" || response.type === "automation",
         modeLabel: modeMeta.label,
         modeTone: modeMeta.tone
       })

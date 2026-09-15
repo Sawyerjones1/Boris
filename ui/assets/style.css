@@ -1627,7 +1627,8 @@ select {
 .chat-message-meta-log,
 .chat-message-meta-recap,
 .chat-message-meta-meta,
-.chat-message-meta-identity {
+.chat-message-meta-identity,
+.chat-message-meta-automation {
   color: var(--text-muted);
 }
 
