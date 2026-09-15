@@ -574,10 +574,12 @@ async function extractSupplementLabel(fileBase64, mimeType) {
   return extractionResult;
 }
 
+// With multiline matching, $ also matches line endings. Use an absolute
+// end-of-input assertion so blank lines and nested headings stay in the section.
+const LAB_PICTURE_SECTION = /^# Lab Picture\b[\s\S]*?(?=^#[ \t]+|(?![\s\S]))/im;
+
 function extractLabPictureSection(healthPicture) {
-  const match = String(healthPicture || "").match(
-    /^# Lab Picture\b[\s\S]*?(?=^#\s|\s*$)/im
-  );
+  const match = String(healthPicture || "").match(LAB_PICTURE_SECTION);
 
   return match ? match[0].trim() : "";
 }
@@ -588,9 +590,9 @@ function replaceLabPictureSection(healthPicture, nextSection) {
 
   if (/^# Lab Picture\b/im.test(normalizedHealthPicture)) {
     return `${normalizedHealthPicture.replace(
-      /^# Lab Picture\b[\s\S]*?(?=^#\s|\s*$)/im,
-      block.trimEnd()
-    )}\n`;
+      LAB_PICTURE_SECTION,
+      () => `${block}\n`
+    ).trimEnd()}\n`;
   }
 
   if (!normalizedHealthPicture) {
@@ -857,6 +859,8 @@ async function updateHealthPictureWithLabResults(userId, extractionResult) {
 }
 
 module.exports = {
+  extractLabPictureSection,
+  replaceLabPictureSection,
   extractLabResults,
   extractSupplementLabel,
   extractDoctorVisit,
