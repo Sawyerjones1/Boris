@@ -8,20 +8,121 @@ The project is designed to answer questions that a single long chat thread handl
 
 > Boris is a personal tracking and software demonstration project. It is not a medical device and does not diagnose conditions or replace professional medical advice.
 
-<!-- When the portfolio walkthrough is live, add it here, directly under the intro:
-**[Watch the walkthrough](https://your-portfolio-url)** - a guided tour of the dashboard, chat, document extraction, and automations.
--->
-
+[View the slideshow preview](https://sawyerjones.me/project-boris#preview) · [Try the demo](#try-the-demo) · [Engineering highlights](#engineering-highlights) · [Tests](#tests)
 
 ![Daily dashboard with vitals, supplements, symptoms, meals, and exercise for a single day](docs/images/dashboard.png)
 
 *One day of structured tracking. Every field autosaves and the whole page is scoped by date.*
 
+## Try the demo
+
+Explore Boris with 120 days of fictional health data. You can browse the dashboard, edit daily logs, inspect trends, and read seeded conversations and summaries **without an OpenAI key**. Live AI features and integrations can be enabled afterward.
+
+### 1. Install the prerequisites
+
+- **Git** to clone the repository.
+- **[Node.js 24 LTS](https://nodejs.org/en/download)**, including npm. Check your installation with `node --version` and `npm --version`.
+- **A separate Postgres database for the demo.** Boris was developed with Neon; an existing local Postgres 14+ database also works.
+
+For a hosted database, create a project in [Neon](https://neon.com/docs/get-started/signing-up). Open **Connect** on the project dashboard, select the database and its owner role, and copy the Postgres connection URL. Copy the URL itself, without a surrounding `psql` command. See [Neon's connection guide](https://neon.com/docs/connect/connect-from-any-app).
+
+The database must already exist, and the connection role must be able to create and update tables in it. Boris creates its tables automatically during seeding or startup; there is no separate migration command or frontend build step.
+
+### 2. Clone and configure
+
+```bash
+git clone https://github.com/Sawyerjones1/Boris.git
+cd Boris
+npm ci
+```
+
+Copy the configuration templates:
+
+**macOS / Linux**
+
+```bash
+cp .env.example .env
+cp config.json.example config.json
+```
+
+**Windows PowerShell**
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item config.json.example config.json
+```
+
+If PowerShell blocks `npm.ps1`, use `npm.cmd` in place of `npm` for every command in this guide.
+
+Set `config.json` to:
+
+```json
+{
+  "userId": "portfolio-demo"
+}
+```
+
+In `.env`, replace `DATABASE_URL` with your database's connection URL and choose your timezone:
+
+```dotenv
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=verify-full
+APP_TIMEZONE=America/New_York
+OPENAI_API_KEY=
+```
+
+The URL above is a placeholder; use the actual value from your provider. For local Postgres, a typical URL is `postgresql://user:password@127.0.0.1:5432/boris`. See [database connection options](#database-connection-options) for TLS behavior.
+
+`APP_TIMEZONE` uses an IANA timezone such as `America/Chicago` or `Europe/London` and controls server dates and default scheduling. Set it before seeding or onboarding. Leave the optional integration keys blank for this walkthrough.
+
+### 3. Seed and start
+
+```bash
+npm run seed:demo
+npm start
+```
+
+Wait for the terminal to print `Server listening on http://127.0.0.1:3000`, then open **[http://localhost:3000](http://localhost:3000)**. The seeded profile opens directly to the dashboard; onboarding is already complete. Keep the terminal running and use `Ctrl+C` to stop Boris.
+
+The seed ends on the current UTC date by default. For fixed screenshots, set `DEMO_END_DATE=YYYY-MM-DD` in `.env` before seeding. If the dashboard's current day falls outside the seeded range, use its date picker to open the seed's final date.
+
+### 4. Explore the project
+
+- **Dashboard:** Open a populated day, change a value, then refresh to verify it persisted.
+- **Trends:** Switch to the 90-day or all-time range to explore sleep, flares, and symptom frequency.
+- **Doctor's Notes:** Inspect the profile memory and summaries at different time scales.
+- **Chat and API logs:** Browse the seeded examples. Add an AI key to send a new message or inspect a real model request.
+
+The fictional persona, Jordan Reyes, has a post-viral recovery history with changes in sleep, exercise, symptoms, and medication. Seeded conversations, summaries, and API-log examples are synthetic. Lab results and doctor visits start empty so you can try extraction with your own synthetic documents.
+
+### Enable AI features
+
+Set `OPENAI_API_KEY` in `.env` and restart Boris to enable live chat, natural-language logging, macro estimation, document extraction, and newly generated summaries. These features make requests to the OpenAI API. Existing seeded data and manual tracking remain available without the key.
+
+Telegram, Google Calendar, and weather have separate credentials; see [optional integrations](#optional-integrations). The seeded 9:00 AM morning brief needs both AI and Telegram configuration to generate and deliver a message.
+
+### Reset the demo
+
+Stop Boris before reseeding or resetting. **`npm run seed:demo` replaces all records for `portfolio-demo`, including edits made while exploring.** It refuses to run under any other configured user ID.
+
+To delete the fictional user's records without reseeding:
+
+```bash
+npm run reset:demo
+```
+
+Run `npm start` afterward to begin onboarding with an empty profile.
+
+## Start with your own profile
+
+Follow the installation and configuration steps above, using a separate database and a `config.json` user ID such as `local-user`. Skip the demo seed, run `npm start`, and complete onboarding at [http://localhost:3000](http://localhost:3000).
+
+An OpenAI key enables AI-generated onboarding synthesis. Without one, Boris saves a structured onboarding summary and still supports manual tracking. Optional integrations can be added later.
+
+## Product tour
+
 ![Chat thread showing plain-language logging, a data-grounded answer, and a reminder being scheduled](docs/images/chat.png)
 
 *The same thread logs data, answers questions from your own history, and schedules reminders.*
-
-## Product tour
 
 - **Daily dashboard:** Track sleep, energy, mood, stress, vitals, medications, supplements, symptoms, meals, hydration, exercise, flare days, and journal notes.
 - **Boris chat:** Log information in plain language, ask questions in Doctor Mode, update profile memory, and create reminders conversationally.
@@ -74,7 +175,7 @@ flowchart LR
 
 | Area | Technology |
 | --- | --- |
-| Backend | Node.js 20+, Express 5 |
+| Backend | Node.js, Express 5 |
 | Frontend | Plain HTML, CSS, JavaScript, and inline SVG charts |
 | Database | Postgres, developed with Neon |
 | AI | OpenAI API |
@@ -83,101 +184,23 @@ flowchart LR
 | Optional integrations | Telegram, Google Calendar, OpenWeather |
 | Testing | Node's built-in test runner, GitHub Actions |
 
-## Run locally
+## Database connection options
 
-### Prerequisites
-
-- Node.js 20 or newer
-- A Postgres database. Any Postgres 14+ instance works, including a local one. Boris was developed against [Neon](https://neon.tech), whose free tier is enough to run the whole project.
-- An OpenAI API key for AI-powered onboarding, chat, summaries, and extraction
-
-### Setup
-
-1. Clone the repository and install the locked dependencies:
-
-   ```bash
-   git clone https://github.com/Sawyerjones1/Boris.git
-   cd Boris
-   npm ci
-   ```
-
-2. Copy the local configuration templates:
-
-   ```bash
-   cp .env.example .env
-   cp config.json.example config.json
-   ```
-
-   On Windows PowerShell, use `Copy-Item` instead of `cp` if needed.
-
-3. Set a local user ID in `config.json`:
-
-   ```json
-   {
-     "userId": "local-user"
-   }
-   ```
-
-4. Add the required values to `.env`:
-
-   ```dotenv
-   OPENAI_API_KEY=your_openai_key
-   DATABASE_URL=your_postgres_connection_string
-   ```
-
-   - **Local Postgres:** use a URL such as `postgresql://user:password@127.0.0.1:5432/boris`. Loopback hosts (`localhost`, `127.x.x.x`, `::1`) and Unix sockets default to non-TLS connections. `?sslmode=disable` is also accepted locally.
-   - **Hosted Postgres / Neon:** use the provider's URL, preferably with `?sslmode=verify-full`. Remote connections always verify the certificate chain and hostname. Existing `sslmode=require`, `prefer`, and `verify-ca` URLs are upgraded to full verification; they never permit weaker TLS.
-   - For a private certificate authority, supply `sslrootcert` in the URL with the path to its CA certificate. Client certificate options `sslcert` and `sslkey` are also supported. Explicit TLS options enable verified TLS even on localhost.
-   - Conflicting SSL options, unverified modes, and non-TLS remote connections are rejected. Boris derives its TLS policy from `DATABASE_URL`; `PGSSLMODE` does not override it.
-
-5. Start Boris:
-
-   ```bash
-   npm start
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000) and complete onboarding.
-
-`initSchema()` creates and updates the database schema at startup. No separate migration command is required for a fresh installation.
-
-## Fictional portfolio data
-
-The seed script creates a fictional user, Jordan Reyes, with 120 days of post-viral recovery data. The story includes improving sleep and pacing, a switch from high-intensity exercise to lighter movement, changing flare frequency, and a medication timeline. The relationships are intentionally probabilistic so the charts and Doctor Mode have patterns to analyze without presenting a predetermined diagnosis.
-
-Use a separate empty database for demo data. Set its connection string in `.env`, then set the following local user ID:
-
-```json
-{
-  "userId": "portfolio-demo"
-}
-```
-
-Seed the database:
-
-```bash
-npm run seed:demo
-```
-
-The script refuses to run unless `config.json` contains exactly `portfolio-demo`, and it deletes records only for that user ID. To clear that fictional user without reseeding:
-
-```bash
-npm run reset:demo
-```
-
-Set `DEMO_END_DATE=YYYY-MM-DD` in `.env` when you need stable dates across screenshots. Lab results and doctor visits are intentionally left empty so the upload and review workflow can be demonstrated with synthetic documents.
+- **Local Postgres:** Loopback hosts (`localhost`, `127.x.x.x`, `::1`) and Unix sockets default to non-TLS connections. `?sslmode=disable` is also accepted locally.
+- **Hosted Postgres:** Remote connections verify the certificate chain and hostname. Use `sslmode=verify-full`; provider URLs using `require`, `prefer`, or `verify-ca` are upgraded to full verification.
+- **Custom certificates:** Supply `sslrootcert` in the URL with the path to the CA certificate. Client certificate options `sslcert` and `sslkey` are also supported. Explicit TLS options enable verified TLS even on localhost.
+- **Configuration precedence:** Conflicting SSL options, unverified modes, and non-TLS remote connections are rejected. Boris derives its TLS policy from `DATABASE_URL`; `PGSSLMODE` does not override it.
 
 ## Optional integrations
 
 ### Telegram
 
-Create a bot through [BotFather](https://t.me/BotFather), then set both values:
+1. Create a bot through [BotFather](https://t.me/BotFather). Set `TELEGRAM_BOT_TOKEN` in `.env`, leaving `TELEGRAM_ALLOWED_CHAT_ID` blank initially.
+2. Start Boris. After the terminal reports `Polling started`, send a new private message to your bot. Boris logs `Detected private chat` with a numeric `chatId`; it does not reply until that ID is allowed.
+3. Copy that number into `TELEGRAM_ALLOWED_CHAT_ID` in `.env` and restart Boris.
+4. Send a new `/start` or `/id` message. The bot should now reply and confirm the connection.
 
-```dotenv
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_ALLOWED_CHAT_ID=
-```
-
-Send `/start` or `/id` to the bot to retrieve the chat ID. Boris rejects incoming Telegram messages until an allowed chat ID is configured. The Node process must remain running for polling, reminders, and briefs to work.
+The process must remain running for polling, reminders, and briefs to work. Existing messages may be skipped on startup, so send a fresh message when checking the connection.
 
 Two optional overrides are also recognized. `TELEGRAM_CHAT_ID` acts as a fallback when `TELEGRAM_ALLOWED_CHAT_ID` is not set, and `TELEGRAM_USER_ID` routes inbound Telegram messages to a specific user ID instead of the one in `config.json`. Neither is needed for a standard single-user setup.
 
@@ -195,6 +218,8 @@ GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 ```
 
+Restart Boris, open **Schedules**, and select **Connect Google** to authorize access. If you use a different port, update the redirect URI in both Google and `.env`.
+
 Calendar access is read-only. Boris stores the connection in Postgres and displays selected calendars alongside recurring blocks.
 
 ### Weather
@@ -210,13 +235,30 @@ WEATHER_UNITS=imperial
 
 ## Tests
 
+After `npm ci`, run:
+
 ```bash
 npm test
 ```
 
-The test suite covers scheduling, automations, medical-record normalization, profile generation, API-log pagination and failures, tutorials, and trend aggregation. GitHub Actions runs the suite on pushes to `main` and on pull requests.
+The test suite covers concurrent database updates, dashboard autosave races, Markdown URL safety, database TLS configuration, demo checklists, scheduling, automations, medical-record normalization, profile generation, API logging, tutorials, and trend aggregation. GitHub Actions runs the suite on pushes to `main` and on pull requests.
 
 `npm test` uses isolated test configuration and needs no `.env` or provider credentials. Concurrency tests start a real, temporary PostgreSQL 17 instance bound to loopback, exercise separate database connections, then stop it and remove its temporary data. The development-only `embedded-postgres` dependency installs the platform binaries through npm; no Docker or existing database is required. Run tests as a normal user (Postgres refuses to run as root).
+
+## Troubleshooting
+
+After changing `.env`, stop and restart Boris so it loads the new values.
+
+| Symptom | What to check |
+| --- | --- |
+| `npm.ps1 cannot be loaded` in PowerShell | Use `npm.cmd ci`, `npm.cmd start`, or `npm.cmd test`. No execution-policy change is needed. |
+| `EBADENGINE` or PDF dependency errors | Check `node --version`, install Node.js 24 LTS, then rerun `npm ci`. The PDF dependency requires `>=20.16.0 <21` or `>=22.3.0`. |
+| Missing `DATABASE_URL` or schema initialization fails | Check that `.env` is in the repository root, the database exists, and the URL contains the correct host, database, and credentials. The role needs permission to create and update tables. |
+| Certificate verification fails | Use the provider's connection URL and, when required, its CA certificate via `sslrootcert`. Check the hostname and certificate configuration. |
+| `EADDRINUSE` / port 3000 is occupied | Set `PORT=3001` in `.env`, restart, and open `http://localhost:3001`. Update the Google redirect URI if that integration is enabled. |
+| Onboarding appears after seeding | Confirm `config.json` uses `portfolio-demo`, the seed completed successfully, and the seed and server use the same database. |
+| AI features are unavailable or a request fails | Check `OPENAI_API_KEY` and the error in the terminal or API logs. A blank key leaves AI features disabled; the seeded dashboard still works. |
+| Telegram is silent | Follow the chat-ID setup above, restart after saving it, and send a new private message while Boris is running. |
 
 ## Privacy and deployment
 
