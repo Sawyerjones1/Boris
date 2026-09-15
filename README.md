@@ -8,6 +8,11 @@ The project is designed to answer questions that a single long chat thread handl
 
 > Boris is a personal tracking and software demonstration project. It is not a medical device and does not diagnose conditions or replace professional medical advice.
 
+<!-- When the portfolio walkthrough is live, add it here, directly under the intro:
+**[Watch the walkthrough](https://your-portfolio-url)** - a guided tour of the dashboard, chat, document extraction, and automations.
+-->
+
+
 ![Daily dashboard with vitals, supplements, symptoms, meals, and exercise for a single day](docs/images/dashboard.png)
 
 *One day of structured tracking. Every field autosaves and the whole page is scoped by date.*
@@ -15,18 +20,6 @@ The project is designed to answer questions that a single long chat thread handl
 ![Chat thread showing plain-language logging, a data-grounded answer, and a reminder being scheduled](docs/images/chat.png)
 
 *The same thread logs data, answers questions from your own history, and schedules reminders.*
-
-![Trends page showing sleep, flare days, mood and energy, exertion, and symptom frequency charts](docs/images/trends.png)
-
-*Charts are generated from whatever you have actually logged, with no fixed symptom list.*
-
-![A scheduled morning brief delivered over Telegram](docs/images/morning-brief-telegram.png)
-
-*A scheduled morning brief, generated from logged data and delivered over Telegram.*
-
-![API logs showing token usage, latency, and cost per request](docs/images/logs.png)
-
-*Every model call is recorded with tokens, latency, and estimated cost.*
 
 ## Product tour
 
@@ -41,6 +34,10 @@ The project is designed to answer questions that a single long chat thread handl
 
 Each main page includes a first-visit tutorial. Tutorial progress is stored per user in Postgres.
 
+![Trends page showing sleep, flare days, mood and energy, exertion, and symptom frequency charts](docs/images/trends.png)
+
+*Trends are generated from whatever you have actually logged. The symptom chart discovers its own categories at runtime rather than using a fixed list.*
+
 ## Engineering highlights
 
 - **Shared intent pipeline:** Web and Telegram messages use the same classifier and routing logic for logging, questions, profile updates, recap answers, and automation requests.
@@ -50,6 +47,10 @@ Each main page includes a first-visit tutorial. Tutorial progress is stored per 
 - **Observable AI calls:** OpenAI requests pass through one wrapper that records usage, cost, latency, source, and outcome.
 - **Generic trend aggregation:** Charts discover user-defined symptoms at runtime and use the existing daily-log schema without persona-specific assumptions.
 - **Deterministic demo:** A guarded seed script creates 120 days of fictional, internally consistent health data for portfolio demonstrations.
+
+![API logs showing token usage, latency, and cost per request](docs/images/logs.png)
+
+*Every model call is recorded with its prompt, token counts, latency, and estimated cost.*
 
 ```mermaid
 flowchart LR
@@ -174,6 +175,10 @@ TELEGRAM_ALLOWED_CHAT_ID=
 Send `/start` or `/id` to the bot to retrieve the chat ID. Boris rejects incoming Telegram messages until an allowed chat ID is configured. The Node process must remain running for polling, reminders, and briefs to work.
 
 Two optional overrides are also recognized. `TELEGRAM_CHAT_ID` acts as a fallback when `TELEGRAM_ALLOWED_CHAT_ID` is not set, and `TELEGRAM_USER_ID` routes inbound Telegram messages to a specific user ID instead of the one in `config.json`. Neither is needed for a standard single-user setup.
+
+![A scheduled morning brief delivered over Telegram](docs/images/morning-brief-telegram.png)
+
+*Once connected, scheduled briefs and reminders arrive over Telegram, and messages sent back to the bot are logged through the same pipeline as the web UI.*
 
 ### Google Calendar
 
