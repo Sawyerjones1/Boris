@@ -2957,6 +2957,26 @@ function renderMarkdown(value) {
   }).join("")
 }
 
+function isSafeMarkdownUrl(value) {
+  const href = String(value || "").trim()
+  // Browsers normalize backslashes and embedded control characters in URLs.
+  // Reject them before parsing, along with protocol-relative destinations.
+  if (!href || /[\u0000-\u0020\u007f\\]/.test(href) || href.startsWith("//")) {
+    return false
+  }
+
+  try {
+    const base = "https://boris.invalid/"
+    const url = new URL(href, base)
+    if (/^[a-z][a-z\d+.-]*:/i.test(href)) {
+      return ["http:", "https:", "mailto:"].includes(url.protocol)
+    }
+    return url.origin === new URL(base).origin
+  } catch (_error) {
+    return false
+  }
+}
+
 function renderRichMarkdown(value) {
   const text = String(value || "").trim()
 
@@ -2965,7 +2985,18 @@ function renderRichMarkdown(value) {
   }
 
   if (window.marked?.parse) {
-    return window.marked.parse(escapeHtml(text))
+    const renderer = new window.marked.Renderer()
+    renderer.link = function (token) {
+      return isSafeMarkdownUrl(token.href)
+        ? window.marked.Renderer.prototype.link.call(this, token)
+        : this.parser.parseInline(token.tokens)
+    }
+    renderer.image = function (token) {
+      return isSafeMarkdownUrl(token.href)
+        ? window.marked.Renderer.prototype.image.call(this, token)
+        : escapeHtml(token.text)
+    }
+    return window.marked.parse(escapeHtml(text), { renderer })
   }
 
   return renderMarkdown(text)

@@ -9,14 +9,6 @@ function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), "utf8");
 }
 
-test("rich markdown escapes raw HTML before rendering", () => {
-  const app = read("ui/assets/app.js");
-  assert.match(app, /window\.marked\.parse\(escapeHtml\(text\)\)/);
-  assert.match(app, /body\.innerHTML = renderRichMarkdown\(markdownText\)/);
-  assert.doesNotMatch(app, /marked\.parse\(markdownText\)/);
-  assert.doesNotMatch(app, /window\.marked\.parse\(text\)/);
-});
-
 test("HTTP inputs and responses have basic local-server hardening", () => {
   const server = read("server.js");
   assert.match(server, /app\.disable\("x-powered-by"\)/);

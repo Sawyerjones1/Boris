@@ -178,7 +178,7 @@ The fictional scenario models gradual post-viral recovery with overlapping sleep
 
 ## Security boundary
 
-The repository excludes `.env`, `config.json`, dependencies, uploads, exports, local tooling, and temporary logs. Markdown is escaped before rendering through `marked`, and user-controlled HTML interpolations use escaping helpers. Request bodies and uploads have explicit size and part limits. Basic response headers disable MIME sniffing, framing, referrer leakage, and the Express signature.
+The repository excludes `.env`, `config.json`, dependencies, uploads, exports, local tooling, and temporary logs. Markdown is escaped before rendering through `marked`; its link and image renderers allow only HTTP, HTTPS, mailto, and same-origin relative URLs. Protocol-relative URLs, backslashes, and embedded control characters are rejected. User-controlled HTML interpolations use escaping helpers. Request bodies and uploads have explicit size and part limits. Basic response headers disable MIME sniffing, framing, referrer leakage, and the Express signature.
 
 The application still has deliberate single-user limits:
 
